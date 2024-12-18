@@ -21,7 +21,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        input[type="text"] {
+        input[type="text"], input[type="datetime-local"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -52,6 +52,8 @@
 
     <h2>Agenda/Rappels :</h2>
     <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
+    <input type="datetime-local" id="reminderTime" />
+    <input type="file" id="audioFile" accept="audio/*">
     <button onclick="addReminder()">Ajouter un rappel</button>
     <div id="agenda"></div>
 
@@ -99,20 +101,32 @@
         // Charger l'historique au chargement de la page
         window.onload = loadHistory;
 
-        // Ajouter un rappel dans l'agenda
+        // Ajouter un rappel avec date, heure et chanson
         function addReminder() {
             const reminderText = document.getElementById('agendaInput').value.trim();
+            const reminderTime = document.getElementById('reminderTime').value;
+            const audioFile = document.getElementById('audioFile').files[0];
 
-            if (reminderText === "") {
-                alert("Veuillez entrer un rappel.");
+            if (reminderText === "" || reminderTime === "") {
+                alert("Veuillez entrer un rappel et une date/heure.");
                 return;
             }
 
+            // Préparer l'objet de rappel avec le texte, l'heure et le fichier audio
+            const reminder = {
+                text: reminderText,
+                time: reminderTime,
+                audio: audioFile ? URL.createObjectURL(audioFile) : null,
+                done: false
+            };
+
             let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
-            reminders.push({ text: reminderText, done: false });
+            reminders.push(reminder);
             localStorage.setItem('agenda', JSON.stringify(reminders));
 
             document.getElementById('agendaInput').value = ''; // Réinitialiser l'input
+            document.getElementById('reminderTime').value = ''; // Réinitialiser l'heure
+            document.getElementById('audioFile').value = ''; // Réinitialiser le fichier audio
             loadAgenda(); // Recharger l'agenda
         }
 
@@ -127,8 +141,18 @@
                 div.classList.add('agenda-item');
                 
                 const doneStatus = reminder.done ? ' (Terminé)' : ' (En attente)';
-                div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
+                div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <br> Heure : ${reminder.time} <br> <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
                 agendaDiv.appendChild(div);
+
+                // Vérification de l'heure et alerte
+                if (!reminder.done && new Date(reminder.time) <= new Date()) {
+                    alert(`Rappel : ${reminder.text}`);
+                    if (reminder.audio) {
+                        const audio = new Audio(reminder.audio);
+                        audio.play();
+                    }
+                    markDone(index); // Marquer comme terminé après notification
+                }
             });
         }
 
