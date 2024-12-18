@@ -53,7 +53,6 @@
     <h2>Agenda/Rappels :</h2>
     <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
     <input type="datetime-local" id="reminderTime" />
-    <input type="file" id="audioFile" accept="audio/*">
     <button onclick="addReminder()">Ajouter un rappel</button>
     <div id="agenda"></div>
 
@@ -101,22 +100,20 @@
         // Charger l'historique au chargement de la page
         window.onload = loadHistory;
 
-        // Ajouter un rappel avec date, heure et chanson
+        // Ajouter un rappel avec date, heure
         function addReminder() {
             const reminderText = document.getElementById('agendaInput').value.trim();
             const reminderTime = document.getElementById('reminderTime').value;
-            const audioFile = document.getElementById('audioFile').files[0];
 
             if (reminderText === "" || reminderTime === "") {
                 alert("Veuillez entrer un rappel et une date/heure.");
                 return;
             }
 
-            // Préparer l'objet de rappel avec le texte, l'heure et le fichier audio
+            // Préparer l'objet de rappel avec le texte et l'heure
             const reminder = {
                 text: reminderText,
                 time: reminderTime,
-                audio: audioFile ? URL.createObjectURL(audioFile) : null,
                 done: false
             };
 
@@ -126,7 +123,6 @@
 
             document.getElementById('agendaInput').value = ''; // Réinitialiser l'input
             document.getElementById('reminderTime').value = ''; // Réinitialiser l'heure
-            document.getElementById('audioFile').value = ''; // Réinitialiser le fichier audio
             loadAgenda(); // Recharger l'agenda
         }
 
@@ -144,13 +140,9 @@
                 div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <br> Heure : ${reminder.time} <br> <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
                 agendaDiv.appendChild(div);
 
-                // Vérification de l'heure et alerte
+                // Vérification de l'heure et notification
                 if (!reminder.done && new Date(reminder.time) <= new Date()) {
-                    alert(`Rappel : ${reminder.text}`);
-                    if (reminder.audio) {
-                        const audio = new Audio(reminder.audio);
-                        audio.play();
-                    }
+                    sendNotification(reminder.text);
                     markDone(index); // Marquer comme terminé après notification
                 }
             });
@@ -170,6 +162,32 @@
             reminders.splice(index, 1); // Supprimer le rappel à l'index donné
             localStorage.setItem('agenda', JSON.stringify(reminders));
             loadAgenda(); // Recharger l'agenda
+        }
+
+        // Fonction pour envoyer une notification
+        function sendNotification(message) {
+            // Vérifier si la permission de notification a été donnée
+            if (Notification.permission === "granted") {
+                new Notification("Rappel !", {
+                    body: message
+                });
+                playSound(); // Jouer le son
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === "granted") {
+                        new Notification("Rappel !", {
+                            body: message
+                        });
+                        playSound(); // Jouer le son
+                    }
+                });
+            }
+        }
+
+        // Fonction pour jouer un son classique (par exemple un bip)
+        function playSound() {
+            const audio = new Audio('https://www.soundjay.com/button/beep-07.wav'); // Son classique (bip)
+            audio.play();
         }
     </script>
 </body>
