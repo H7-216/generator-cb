@@ -1,17 +1,19 @@
 <?php
 // Connexion à la base de données
 $servername = "localhost";
-$username = "root"; // Remplacez par votre nom d'utilisateur
-$password = ""; // Remplacez par votre mot de passe
-$dbname = "texte_historique"; // Nom de la base de données
+$username = "root";  // Votre nom d'utilisateur
+$password = "";  // Votre mot de passe
+$dbname = "texte_historique";  // Nom de votre base de données
 
+// Connexion
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+// Vérification de la connexion
 if ($conn->connect_error) {
     die("Connexion échouée: " . $conn->connect_error);
 }
 
-// Récupérer le texte envoyé depuis la page
+// Vérifier si le texte est envoyé
 if (isset($_POST['text'])) {
     $texte = $_POST['text'];
 
@@ -21,6 +23,10 @@ if (isset($_POST['text'])) {
     $stmt->bind_param("s", $texte);
     $stmt->execute();
     $stmt->close();
+
+    echo "Texte sauvegardé.";
+} else {
+    echo "Aucun texte envoyé.";
 }
 
 $conn->close();
