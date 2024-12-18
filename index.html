@@ -40,13 +40,16 @@
     <h2>Historique des textes :</h2>
     <div id="historique"></div>
 
-    <h2>Générer une description par IA locale</h2>
+    <h2>Générer une description via l'API</h2>
     <input type="text" id="titleInput" placeholder="Entrez le titre de l'exposé">
     <button onclick="generateDescription()">Générer la description</button>
     
     <div id="generatedDescription" style="margin-top: 20px;"></div>
 
     <script>
+        // Clé API (exposée ici, attention à la sécurité !)
+        const apiKey = "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";
+
         // Charger l'historique des textes
         function loadHistory() {
             const historique = JSON.parse(localStorage.getItem('historique')) || [];
@@ -90,46 +93,36 @@
         // Charger l'historique au chargement de la page
         window.onload = loadHistory;
 
-        // Fonction améliorée pour générer une description par IA locale
+        // Fonction pour générer une description en appelant l'API OpenAI
         function generateDescription() {
             const title = document.getElementById('titleInput').value.trim();
+
             if (title === "") {
                 alert("Veuillez entrer un titre d'exposé.");
                 return;
             }
 
-            // Fonction pour générer des détails contextuels en fonction du titre
-            const description = createDescription(title);
-            
-            // Afficher la description générée
-            document.getElementById('generatedDescription').innerHTML = `<strong>Description générée :</strong><p>${description}</p>`;
-        }
-
-        // Créer une description détaillée basée sur le titre
-        function createDescription(title) {
-            let description = "";
-            const titleLower = title.toLowerCase();
-
-            // Introduction générale
-            description += `L'exposé sur "${title}" aborde des sujets cruciaux dans le domaine choisi.`;
-
-            // Générer des détails en fonction des mots-clés du titre
-            if (titleLower.includes("histoire") || titleLower.includes("historique")) {
-                description += ` Cette présentation explorera les événements clés qui ont marqué l'évolution de ce sujet, en mettant l'accent sur ses grandes étapes.`;
-            } else if (titleLower.includes("science") || titleLower.includes("technologie")) {
-                description += ` Nous examinerons les avancées scientifiques majeures liées à ce domaine et les innovations qui ont façonné le paysage moderne.`;
-            } else if (titleLower.includes("économie") || titleLower.includes("finances")) {
-                description += ` L'exposé analysera les dynamiques économiques et financières actuelles, ainsi que les enjeux mondiaux qui influencent ces secteurs.`;
-            } else if (titleLower.includes("environnement") || titleLower.includes("écologie")) {
-                description += ` Nous discuterons des défis environnementaux mondiaux et des solutions proposées pour un avenir plus durable.`;
-            } else {
-                description += ` Ce sujet est vaste et nous allons explorer ses multiples facettes et implications pour notre compréhension du monde actuel.`;
-            }
-
-            // Conclusion
-            description += ` En conclusion, cet exposé vous permettra de mieux comprendre les enjeux majeurs associés à ce thème et de vous ouvrir à des perspectives nouvelles.`;
-            
-            return description;
+            // Effectuer la requête à l'API OpenAI pour générer une description
+            fetch('https://api.openai.com/v1/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "text-davinci-003",  // Modèle GPT-3 (ajustez selon l'API que vous utilisez)
+                    prompt: `Génère une description détaillée pour l'exposé suivant : ${title}`,
+                    max_tokens: 150
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('generatedDescription').innerHTML = `<strong>Description générée :</strong><p>${data.choices[0].text}</p>`;
+            })
+            .catch(error => {
+                console.error('Erreur :', error);
+                alert("Erreur lors de la génération de la description.");
+            });
         }
     </script>
 </body>
