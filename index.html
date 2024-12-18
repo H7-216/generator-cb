@@ -171,12 +171,6 @@
                 const doneStatus = reminder.done ? ' (Terminé)' : ' (En attente)';
                 div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <br> Heure : ${reminder.time} <br> <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
                 agendaDiv.appendChild(div);
-
-                // Vérification de l'heure et notification
-                if (!reminder.done && new Date(reminder.time) <= new Date()) {
-                    sendNotification(reminder.text);
-                    markDone(index); // Marquer comme terminé après notification
-                }
             });
         }
 
@@ -194,32 +188,6 @@
             reminders.splice(index, 1); // Supprimer le rappel à l'index donné
             localStorage.setItem('agenda', JSON.stringify(reminders));
             loadAgenda(); // Recharger l'agenda
-        }
-
-        // Fonction pour envoyer une notification
-        function sendNotification(message) {
-            // Vérifier si la permission de notification a été donnée
-            if (Notification.permission === "granted") {
-                new Notification("Rappel !", {
-                    body: message
-                });
-                playSound(); // Jouer le son
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(function(permission) {
-                    if (permission === "granted") {
-                        new Notification("Rappel !", {
-                            body: message
-                        });
-                        playSound(); // Jouer le son
-                    }
-                });
-            }
-        }
-
-        // Fonction pour jouer un son classique (par exemple un bip)
-        function playSound() {
-            const audio = new Audio('https://www.soundjay.com/button/beep-07.wav'); // Son classique (bip)
-            audio.play();
         }
     </script>
 
