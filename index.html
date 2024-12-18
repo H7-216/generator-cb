@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historique du Texte</title>
+    <title>Historique du Texte et Rappels</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,10 +12,10 @@
             width: 100%;
             height: 150px;
         }
-        #historique {
+        #historique, #agenda {
             margin-top: 20px;
         }
-        .historique-item {
+        .historique-item, .agenda-item {
             margin-bottom: 10px;
             padding: 10px;
             border: 1px solid #ccc;
@@ -27,10 +27,20 @@
             margin: 10px 0;
             font-size: 16px;
         }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <h1>Entrez votre texte</h1>
+    <h1>Entrez votre texte ou ajoutez un rappel</h1>
     
     <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
     
@@ -40,16 +50,16 @@
     <h2>Historique des textes :</h2>
     <div id="historique"></div>
 
-    <h2>Générer une description via l'API</h2>
-    <input type="text" id="titleInput" placeholder="Entrez le titre de l'exposé">
-    <button onclick="generateDescription()">Générer la description</button>
-    
-    <div id="generatedDescription" style="margin-top: 20px;"></div>
+    <h2>Agenda/Rappels :</h2>
+    <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
+    <button onclick="addReminder()">Ajouter un rappel</button>
+    <div id="agenda"></div>
+
+    <h2>Option Vocal :</h2>
+    <button onclick="startVoiceRecognition()">Commencer à parler</button>
+    <p id="voiceOutput"></p>
 
     <script>
-        // Clé API (exposée ici, attention à la sécurité !)
-        const apiKey = "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";
-
         // Charger l'historique des textes
         function loadHistory() {
             const historique = JSON.parse(localStorage.getItem('historique')) || [];
@@ -93,36 +103,52 @@
         // Charger l'historique au chargement de la page
         window.onload = loadHistory;
 
-        // Fonction pour générer une description en appelant l'API OpenAI
-        function generateDescription() {
-            const title = document.getElementById('titleInput').value.trim();
+        // Ajouter un rappel dans l'agenda
+        function addReminder() {
+            const reminderText = document.getElementById('agendaInput').value.trim();
 
-            if (title === "") {
-                alert("Veuillez entrer un titre d'exposé.");
+            if (reminderText === "") {
+                alert("Veuillez entrer un rappel.");
                 return;
             }
 
-            // Effectuer la requête à l'API OpenAI pour générer une description
-            fetch('https://api.openai.com/v1/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: "text-davinci-003",  // Modèle GPT-3 (ajustez selon l'API que vous utilisez)
-                    prompt: `Génère une description détaillée pour l'exposé suivant : ${title}`,
-                    max_tokens: 150
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('generatedDescription').innerHTML = `<strong>Description générée :</strong><p>${data.choices[0].text}</p>`;
-            })
-            .catch(error => {
-                console.error('Erreur :', error);
-                alert("Erreur lors de la génération de la description.");
+            let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
+            reminders.push(reminderText);
+            localStorage.setItem('agenda', JSON.stringify(reminders));
+
+            document.getElementById('agendaInput').value = ''; // Réinitialiser l'input
+            loadAgenda(); // Recharger l'agenda
+        }
+
+        // Charger l'agenda au chargement de la page
+        function loadAgenda() {
+            const agenda = JSON.parse(localStorage.getItem('agenda')) || [];
+            const agendaDiv = document.getElementById('agenda');
+            agendaDiv.innerHTML = '';
+
+            agenda.forEach(function(reminder, index) {
+                const div = document.createElement('div');
+                div.classList.add('agenda-item');
+                div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder}`;
+                agendaDiv.appendChild(div);
             });
+        }
+
+        // Démarrer la reconnaissance vocale
+        function startVoiceRecognition() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'fr-FR'; // Langue en français
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('voiceOutput').textContent = `Vous avez dit : ${transcript}`;
+                document.getElementById('textInput').value = transcript; // Mettre le texte dicté dans la zone de texte
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Erreur lors de la reconnaissance vocale : " + event.error);
+            };
         }
     </script>
 </body>
