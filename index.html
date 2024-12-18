@@ -21,6 +21,12 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -33,6 +39,12 @@
 
     <h2>Historique des textes :</h2>
     <div id="historique"></div>
+
+    <h2>Générer une description par IA</h2>
+    <input type="text" id="titleInput" placeholder="Entrez le titre de l'exposé">
+    <button onclick="generateDescription()">Générer la description</button>
+    
+    <div id="generatedDescription" style="margin-top: 20px;"></div>
 
     <script>
         // Charger l'historique des textes
@@ -77,6 +89,30 @@
 
         // Charger l'historique au chargement de la page
         window.onload = loadHistory;
+
+        // Fonction pour générer une description par IA simulée
+        function generateDescription() {
+            const title = document.getElementById('titleInput').value.trim();
+
+            if (title === "") {
+                alert("Veuillez entrer un titre d'exposé.");
+                return;
+            }
+
+            // Une simulation simple de génération de description basée sur le titre
+            const descriptions = [
+                `L'exposé sur "${title}" explore les concepts fondamentaux associés à ce sujet, en examinant ses différentes facettes et ses implications sur notre compréhension du monde.`,
+                `"${title}" est un sujet captivant qui invite à une réflexion approfondie sur les enjeux modernes liés à ce domaine.`,
+                `Ce sujet, intitulé "${title}", permet de mieux comprendre les défis actuels et offre une perspective critique sur les évolutions futures de ce domaine.`,
+                `Dans cet exposé sur "${title}", nous analyserons les principales questions qui se posent et proposerons des solutions pour mieux aborder ce sujet complexe.`
+            ];
+
+            // Sélectionner une description aléatoire parmi les options
+            const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
+
+            // Afficher la description générée
+            document.getElementById('generatedDescription').innerHTML = `<strong>Description générée :</strong><p>${randomDescription}</p>`;
+        }
     </script>
 </body>
 </html>
