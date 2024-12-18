@@ -21,7 +21,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        input[type="text"], input[type="datetime-local"] {
+        input[type="text"], input[type="password"], input[type="datetime-local"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -37,26 +37,59 @@
         button:hover {
             background-color: #45a049;
         }
+        #login-container {
+            margin-top: 50px;
+            text-align: center;
+        }
+        #main-content {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Entrez votre texte ou ajoutez un rappel</h1>
-    
-    <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
-    
-    <button onclick="saveText()">Sauvegarder le texte</button>
-    <button onclick="clearHistory()">Supprimer l'historique</button>
 
-    <h2>Historique des textes :</h2>
-    <div id="historique"></div>
+    <div id="login-container">
+        <h2>Connexion</h2>
+        <input type="text" id="username" placeholder="Identifiant" />
+        <input type="password" id="password" placeholder="Mot de passe" />
+        <button onclick="checkLogin()">Se connecter</button>
+        <p id="login-error" style="color: red; display: none;">Identifiant ou mot de passe incorrect !</p>
+    </div>
 
-    <h2>Agenda/Rappels :</h2>
-    <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
-    <input type="datetime-local" id="reminderTime" />
-    <button onclick="addReminder()">Ajouter un rappel</button>
-    <div id="agenda"></div>
+    <div id="main-content">
+        <h1>Entrez votre texte ou ajoutez un rappel</h1>
+
+        <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
+        
+        <button onclick="saveText()">Sauvegarder le texte</button>
+        <button onclick="clearHistory()">Supprimer l'historique</button>
+
+        <h2>Historique des textes :</h2>
+        <div id="historique"></div>
+
+        <h2>Agenda/Rappels :</h2>
+        <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
+        <input type="datetime-local" id="reminderTime" />
+        <button onclick="addReminder()">Ajouter un rappel</button>
+        <div id="agenda"></div>
+    </div>
 
     <script>
+        // Vérifier la connexion
+        function checkLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'admin' && password === 'admin') {
+                document.getElementById('login-container').style.display = 'none'; // Cacher la connexion
+                document.getElementById('main-content').style.display = 'block'; // Afficher la page principale
+                loadHistory(); // Charger l'historique des textes
+                loadAgenda(); // Charger les rappels
+            } else {
+                document.getElementById('login-error').style.display = 'block'; // Afficher l'erreur
+            }
+        }
+
         // Charger l'historique des textes
         function loadHistory() {
             const historique = JSON.parse(localStorage.getItem('historique')) || [];
@@ -97,10 +130,7 @@
             }
         }
 
-        // Charger l'historique au chargement de la page
-        window.onload = loadHistory;
-
-        // Ajouter un rappel avec date, heure
+        // Ajouter un rappel avec date/heure
         function addReminder() {
             const reminderText = document.getElementById('agendaInput').value.trim();
             const reminderTime = document.getElementById('reminderTime').value;
@@ -171,24 +201,17 @@
                 new Notification("Rappel !", {
                     body: message
                 });
-                playSound(); // Jouer le son
             } else if (Notification.permission !== "denied") {
                 Notification.requestPermission().then(function(permission) {
                     if (permission === "granted") {
                         new Notification("Rappel !", {
                             body: message
                         });
-                        playSound(); // Jouer le son
                     }
                 });
             }
         }
-
-        // Fonction pour jouer un son classique (par exemple un bip)
-        function playSound() {
-            const audio = new Audio('https://www.soundjay.com/button/beep-07.wav'); // Son classique (bip)
-            audio.play();
-        }
     </script>
+
 </body>
 </html>
