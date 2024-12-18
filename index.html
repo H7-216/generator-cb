@@ -4,51 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historique du Texte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        #historique {
+            margin-top: 20px;
+        }
+        .historique-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>Entrez votre texte</h1>
     
-    <textarea id="textInput" rows="10" cols="50" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
+    <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
     
     <button onclick="saveText()">Sauvegarder le texte</button>
 
     <h2>Historique des textes :</h2>
-    <div id="historique">
-        <!-- Historique des textes s'affichera ici -->
-    </div>
+    <div id="historique"></div>
 
     <script>
-        // Fonction pour sauvegarder le texte
-        function saveText() {
-            var text = document.getElementById("textInput").value;
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "save_text.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    alert("Texte sauvegardé !");
-                    loadHistory(); // Recharger l'historique après chaque sauvegarde
-                }
-            };
-
-            xhr.send("text=" + encodeURIComponent(text));
-        }
-
-        // Fonction pour charger l'historique des textes
+        // Charger l'historique des textes
         function loadHistory() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "load_history.php", true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById("historique").innerHTML = xhr.responseText;
-                }
-            };
-            xhr.send();
+            const historique = JSON.parse(localStorage.getItem('historique')) || [];
+            const historiqueDiv = document.getElementById('historique');
+            historiqueDiv.innerHTML = '';
+
+            historique.forEach(function(text, index) {
+                const div = document.createElement('div');
+                div.classList.add('historique-item');
+                div.innerHTML = `<strong>Texte ${index + 1}:</strong><br>${text}`;
+                historiqueDiv.appendChild(div);
+            });
         }
 
-        // Charger l'historique lors du chargement de la page
+        // Sauvegarder le texte dans le stockage local
+        function saveText() {
+            const text = document.getElementById('textInput').value;
+            if (text) {
+                let historique = JSON.parse(localStorage.getItem('historique')) || [];
+                historique.push(text);
+                localStorage.setItem('historique', JSON.stringify(historique));
+
+                // Réinitialiser la zone de texte
+                document.getElementById('textInput').value = '';
+
+                // Recharger l'historique
+                loadHistory();
+            } else {
+                alert("Veuillez saisir du texte avant de sauvegarder.");
+            }
+        }
+
+        // Charger l'historique au chargement de la page
         window.onload = loadHistory;
     </script>
 </body>
