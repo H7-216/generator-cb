@@ -29,6 +29,7 @@
     <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
     
     <button onclick="saveText()">Sauvegarder le texte</button>
+    <button onclick="clearHistory()">Supprimer l'historique</button>
 
     <h2>Historique des textes :</h2>
     <div id="historique"></div>
@@ -63,6 +64,14 @@
                 loadHistory();
             } else {
                 alert("Veuillez saisir du texte avant de sauvegarder.");
+            }
+        }
+
+        // Supprimer l'historique du stockage local
+        function clearHistory() {
+            if (confirm("Êtes-vous sûr de vouloir supprimer l'historique ?")) {
+                localStorage.removeItem('historique');
+                loadHistory(); // Recharger l'historique après suppression
             }
         }
 
