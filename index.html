@@ -55,10 +55,6 @@
     <button onclick="addReminder()">Ajouter un rappel</button>
     <div id="agenda"></div>
 
-    <h2>Option Vocal :</h2>
-    <button onclick="startVoiceRecognition()">Commencer à parler</button>
-    <p id="voiceOutput"></p>
-
     <script>
         // Charger l'historique des textes
         function loadHistory() {
@@ -113,7 +109,7 @@
             }
 
             let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
-            reminders.push(reminderText);
+            reminders.push({ text: reminderText, done: false });
             localStorage.setItem('agenda', JSON.stringify(reminders));
 
             document.getElementById('agendaInput').value = ''; // Réinitialiser l'input
@@ -129,26 +125,27 @@
             agenda.forEach(function(reminder, index) {
                 const div = document.createElement('div');
                 div.classList.add('agenda-item');
-                div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder}`;
+                
+                const doneStatus = reminder.done ? ' (Terminé)' : ' (En attente)';
+                div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
                 agendaDiv.appendChild(div);
             });
         }
 
-        // Démarrer la reconnaissance vocale
-        function startVoiceRecognition() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'fr-FR'; // Langue en français
-            recognition.start();
+        // Marquer un rappel comme terminé
+        function markDone(index) {
+            const reminders = JSON.parse(localStorage.getItem('agenda')) || [];
+            reminders[index].done = true;
+            localStorage.setItem('agenda', JSON.stringify(reminders));
+            loadAgenda(); // Recharger l'agenda
+        }
 
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('voiceOutput').textContent = `Vous avez dit : ${transcript}`;
-                document.getElementById('textInput').value = transcript; // Mettre le texte dicté dans la zone de texte
-            };
-
-            recognition.onerror = function(event) {
-                console.error("Erreur lors de la reconnaissance vocale : " + event.error);
-            };
+        // Supprimer un rappel spécifique de l'agenda
+        function deleteReminder(index) {
+            let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
+            reminders.splice(index, 1); // Supprimer le rappel à l'index donné
+            localStorage.setItem('agenda', JSON.stringify(reminders));
+            loadAgenda(); // Recharger l'agenda
         }
     </script>
 </body>
