@@ -21,7 +21,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        input[type="text"], input[type="datetime-local"] {
+        input[type="text"], input[type="password"], input[type="datetime-local"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -44,6 +44,9 @@
         #main-content {
             display: none;
         }
+        #register-container {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +58,18 @@
         <input type="password" id="password" placeholder="Mot de passe" />
         <button onclick="checkLogin()">Se connecter</button>
         <p id="login-error" style="color: red; display: none;">Identifiant ou mot de passe incorrect !</p>
+        <br><br>
+        <button onclick="showRegister()">S'inscrire</button>
+    </div>
+
+    <!-- Registration -->
+    <div id="register-container" style="display: none;">
+        <h2>S'inscrire</h2>
+        <input type="text" id="new-username" placeholder="Nouveau Identifiant" />
+        <input type="password" id="new-password" placeholder="Nouveau Mot de passe" />
+        <button onclick="registerUser()">S'inscrire</button>
+        <button onclick="backToLogin()">Retour à la connexion</button>
+        <p id="register-error" style="color: red; display: none;">Ce nom d'utilisateur existe déjà !</p>
     </div>
 
     <!-- Page principale -->
@@ -82,13 +97,48 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === 'admin' && password === 'admin') {
+            // Vérifier si l'utilisateur existe dans localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user || (username === 'admin' && password === 'admin')) {
                 document.getElementById('login-container').style.display = 'none'; // Cacher la connexion
                 document.getElementById('main-content').style.display = 'block'; // Afficher la page principale
                 loadHistory(); // Charger l'historique des textes
                 loadAgenda(); // Charger les rappels
             } else {
                 document.getElementById('login-error').style.display = 'block'; // Afficher l'erreur
+            }
+        }
+
+        // Afficher la page d'inscription
+        function showRegister() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('register-container').style.display = 'block';
+        }
+
+        // Retourner à la page de connexion
+        function backToLogin() {
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('register-container').style.display = 'none';
+        }
+
+        // Enregistrer un nouvel utilisateur
+        function registerUser() {
+            const username = document.getElementById('new-username').value;
+            const password = document.getElementById('new-password').value;
+
+            // Vérifier si l'utilisateur existe déjà
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userExists = users.find(u => u.username === username);
+
+            if (userExists) {
+                document.getElementById('register-error').style.display = 'block'; // Afficher l'erreur
+            } else {
+                users.push({ username, password });
+                localStorage.setItem('users', JSON.stringify(users)); // Sauvegarder l'utilisateur dans localStorage
+                document.getElementById('register-container').style.display = 'none'; // Cacher l'inscription
+                document.getElementById('login-container').style.display = 'block'; // Afficher la connexion
             }
         }
 
