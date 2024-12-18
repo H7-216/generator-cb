@@ -40,7 +40,7 @@
     <h2>Historique des textes :</h2>
     <div id="historique"></div>
 
-    <h2>Générer une description par IA</h2>
+    <h2>Générer une description par IA locale</h2>
     <input type="text" id="titleInput" placeholder="Entrez le titre de l'exposé">
     <button onclick="generateDescription()">Générer la description</button>
     
@@ -90,28 +90,46 @@
         // Charger l'historique au chargement de la page
         window.onload = loadHistory;
 
-        // Fonction pour générer une description par IA simulée
+        // Fonction améliorée pour générer une description par IA locale
         function generateDescription() {
             const title = document.getElementById('titleInput').value.trim();
-
             if (title === "") {
                 alert("Veuillez entrer un titre d'exposé.");
                 return;
             }
 
-            // Une simulation simple de génération de description basée sur le titre
-            const descriptions = [
-                `L'exposé sur "${title}" explore les concepts fondamentaux associés à ce sujet, en examinant ses différentes facettes et ses implications sur notre compréhension du monde.`,
-                `"${title}" est un sujet captivant qui invite à une réflexion approfondie sur les enjeux modernes liés à ce domaine.`,
-                `Ce sujet, intitulé "${title}", permet de mieux comprendre les défis actuels et offre une perspective critique sur les évolutions futures de ce domaine.`,
-                `Dans cet exposé sur "${title}", nous analyserons les principales questions qui se posent et proposerons des solutions pour mieux aborder ce sujet complexe.`
-            ];
-
-            // Sélectionner une description aléatoire parmi les options
-            const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
-
+            // Fonction pour générer des détails contextuels en fonction du titre
+            const description = createDescription(title);
+            
             // Afficher la description générée
-            document.getElementById('generatedDescription').innerHTML = `<strong>Description générée :</strong><p>${randomDescription}</p>`;
+            document.getElementById('generatedDescription').innerHTML = `<strong>Description générée :</strong><p>${description}</p>`;
+        }
+
+        // Créer une description détaillée basée sur le titre
+        function createDescription(title) {
+            let description = "";
+            const titleLower = title.toLowerCase();
+
+            // Introduction générale
+            description += `L'exposé sur "${title}" aborde des sujets cruciaux dans le domaine choisi.`;
+
+            // Générer des détails en fonction des mots-clés du titre
+            if (titleLower.includes("histoire") || titleLower.includes("historique")) {
+                description += ` Cette présentation explorera les événements clés qui ont marqué l'évolution de ce sujet, en mettant l'accent sur ses grandes étapes.`;
+            } else if (titleLower.includes("science") || titleLower.includes("technologie")) {
+                description += ` Nous examinerons les avancées scientifiques majeures liées à ce domaine et les innovations qui ont façonné le paysage moderne.`;
+            } else if (titleLower.includes("économie") || titleLower.includes("finances")) {
+                description += ` L'exposé analysera les dynamiques économiques et financières actuelles, ainsi que les enjeux mondiaux qui influencent ces secteurs.`;
+            } else if (titleLower.includes("environnement") || titleLower.includes("écologie")) {
+                description += ` Nous discuterons des défis environnementaux mondiaux et des solutions proposées pour un avenir plus durable.`;
+            } else {
+                description += ` Ce sujet est vaste et nous allons explorer ses multiples facettes et implications pour notre compréhension du monde actuel.`;
+            }
+
+            // Conclusion
+            description += ` En conclusion, cet exposé vous permettra de mieux comprendre les enjeux majeurs associés à ce thème et de vous ouvrir à des perspectives nouvelles.`;
+            
+            return description;
         }
     </script>
 </body>
