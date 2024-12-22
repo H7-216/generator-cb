@@ -21,7 +21,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        input[type="text"], input[type="password"], input[type="datetime-local"] {
+        input[type="text"], input[type="datetime-local"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -43,9 +43,6 @@
         }
         #main-content {
             display: none;
-        }
-        #register-container {
-            text-align: center;
         }
     </style>
 </head>
@@ -89,6 +86,10 @@
         <input type="datetime-local" id="reminderTime" />
         <button onclick="addReminder()">Ajouter un rappel</button>
         <div id="agenda"></div>
+
+        <h2>IA Vocale</h2>
+        <button onclick="startVoiceInteraction()">Commencer l'interaction vocale</button>
+        <p id="ai-response"></p>
     </div>
 
     <script>
@@ -97,17 +98,16 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Vérifier si l'utilisateur existe dans localStorage
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const user = users.find(u => u.username === username && u.password === password);
 
             if (user || (username === 'admin' && password === 'admin')) {
-                document.getElementById('login-container').style.display = 'none'; // Cacher la connexion
-                document.getElementById('main-content').style.display = 'block'; // Afficher la page principale
-                loadHistory(); // Charger l'historique des textes
-                loadAgenda(); // Charger les rappels
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                loadHistory();
+                loadAgenda();
             } else {
-                document.getElementById('login-error').style.display = 'block'; // Afficher l'erreur
+                document.getElementById('login-error').style.display = 'block';
             }
         }
 
@@ -128,17 +128,16 @@
             const username = document.getElementById('new-username').value;
             const password = document.getElementById('new-password').value;
 
-            // Vérifier si l'utilisateur existe déjà
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const userExists = users.find(u => u.username === username);
 
             if (userExists) {
-                document.getElementById('register-error').style.display = 'block'; // Afficher l'erreur
+                document.getElementById('register-error').style.display = 'block';
             } else {
                 users.push({ username, password });
-                localStorage.setItem('users', JSON.stringify(users)); // Sauvegarder l'utilisateur dans localStorage
-                document.getElementById('register-container').style.display = 'none'; // Cacher l'inscription
-                document.getElementById('login-container').style.display = 'block'; // Afficher la connexion
+                localStorage.setItem('users', JSON.stringify(users));
+                document.getElementById('register-container').style.display = 'none';
+                document.getElementById('login-container').style.display = 'block';
             }
         }
 
@@ -164,10 +163,7 @@
                 historique.push(text);
                 localStorage.setItem('historique', JSON.stringify(historique));
 
-                // Réinitialiser la zone de texte
                 document.getElementById('textInput').value = '';
-
-                // Recharger l'historique
                 loadHistory();
             } else {
                 alert("Veuillez saisir du texte avant de sauvegarder.");
@@ -178,7 +174,7 @@
         function clearHistory() {
             if (confirm("Êtes-vous sûr de vouloir supprimer l'historique ?")) {
                 localStorage.removeItem('historique');
-                loadHistory(); // Recharger l'historique après suppression
+                loadHistory();
             }
         }
 
@@ -192,20 +188,15 @@
                 return;
             }
 
-            // Préparer l'objet de rappel avec le texte et l'heure
-            const reminder = {
-                text: reminderText,
-                time: reminderTime,
-                done: false
-            };
+            const reminder = { text: reminderText, time: reminderTime, done: false };
 
             let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
             reminders.push(reminder);
             localStorage.setItem('agenda', JSON.stringify(reminders));
 
-            document.getElementById('agendaInput').value = ''; // Réinitialiser l'input
-            document.getElementById('reminderTime').value = ''; // Réinitialiser l'heure
-            loadAgenda(); // Recharger l'agenda
+            document.getElementById('agendaInput').value = '';
+            document.getElementById('reminderTime').value = '';
+            loadAgenda();
         }
 
         // Charger l'agenda au chargement de la page
@@ -217,7 +208,6 @@
             agenda.forEach(function(reminder, index) {
                 const div = document.createElement('div');
                 div.classList.add('agenda-item');
-                
                 const doneStatus = reminder.done ? ' (Terminé)' : ' (En attente)';
                 div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <br> Heure : ${reminder.time} <br> <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
                 agendaDiv.appendChild(div);
@@ -229,15 +219,37 @@
             const reminders = JSON.parse(localStorage.getItem('agenda')) || [];
             reminders[index].done = true;
             localStorage.setItem('agenda', JSON.stringify(reminders));
-            loadAgenda(); // Recharger l'agenda
+            loadAgenda();
         }
 
         // Supprimer un rappel spécifique de l'agenda
         function deleteReminder(index) {
             let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
-            reminders.splice(index, 1); // Supprimer le rappel à l'index donné
+            reminders.splice(index, 1);
             localStorage.setItem('agenda', JSON.stringify(reminders));
-            loadAgenda(); // Recharger l'agenda
+            loadAgenda();
+        }
+
+        // Démarrer l'interaction vocale avec l'IA
+        function startVoiceInteraction() {
+            // Demander à l'IA de parler
+            const synth = window.speechSynthesis;
+            const speakText = new SpeechSynthesisUtterance("Bonjour, je suis votre assistant vocal. Comment puis-je vous aider aujourd'hui ?");
+            synth.speak(speakText);
+
+            // Démarrer la reconnaissance vocale
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'fr-FR';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const userResponse = event.results[0][0].transcript;
+                document.getElementById('ai-response').textContent = `Vous avez dit : ${userResponse}`;
+
+                // Répondre à l'utilisateur
+                const replyText = new SpeechSynthesisUtterance(`Vous avez dit ${userResponse}. Que voulez-vous faire ensuite ?`);
+                synth.speak(replyText);
+            };
         }
     </script>
 
