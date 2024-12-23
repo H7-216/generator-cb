@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supermarché</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #scanner {
+            margin: 20px 0;
+        }
+        #product-list {
+            margin: 20px 0;
+        }
+        .product {
+            margin-bottom: 10px;
+        }
+        .product-name {
+            font-weight: bold;
+        }
+        .product-price {
+            color: green;
+        }
+        #display {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        #total {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Système de Caisse Supermarché</h1>
+
+    <div id="scanner">
+        <label for="product-code">Scanner ou entrer le code produit :</label>
+        <input type="text" id="product-code" placeholder="Code produit" />
+        <button onclick="addProduct()">Ajouter au panier</button>
+    </div>
+
+    <div id="product-list">
+        <h3>Produits dans le panier :</h3>
+        <ul id="products"></ul>
+    </div>
+
+    <div id="display">
+        <div id="total">Total: 0€</div>
+        <div id="count">Articles: 0</div>
+        <div id="paid">
+            <label for="payment">Montant payé :</label>
+            <input type="number" id="payment" placeholder="Entrez montant payé" />
+            <button onclick="calculateChange()">Calculer le reste à rendre</button>
+        </div>
+        <div id="change">Reste à rendre: 0€</div>
+    </div>
+
+    <script>
+        const productsDatabase = {
+            "001": { name: "Pommes", price: 2.5 },
+            "002": { name: "Bananes", price: 1.8 },
+            "003": { name: "Oranges", price: 3.0 },
+            "004": { name: "Pâtes", price: 1.2 },
+            "005": { name: "Tomates", price: 2.0 }
+        };
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Afficher le panier
+        function displayCart() {
+            const productList = document.getElementById('products');
+            productList.innerHTML = '';
+            let total = 0;
+            cart.forEach(product => {
+                const li = document.createElement('li');
+                li.classList.add('product');
+                li.innerHTML = `<span class="product-name">${product.name}</span> - <span class="product-price">${product.price}€</span>`;
+                productList.appendChild(li);
+                total += product.price;
+            });
+            document.getElementById('total').textContent = `Total: ${total.toFixed(2)}€`;
+            document.getElementById('count').textContent = `Articles: ${cart.length}`;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Ajouter un produit au panier
+        function addProduct() {
+            const code = document.getElementById('product-code').value.trim();
+            if (productsDatabase[code]) {
+                const product = productsDatabase[code];
+                cart.push(product);
+                displayCart();
+                document.getElementById('product-code').value = '';
+            } else {
+                alert("Produit non trouvé.");
+            }
+        }
+
+        // Calculer le reste à rendre
+        function calculateChange() {
+            const payment = parseFloat(document.getElementById('payment').value);
+            if (isNaN(payment) || payment < 0) {
+                alert("Veuillez entrer un montant valide.");
+                return;
+            }
+            const total = cart.reduce((sum, product) => sum + product.price, 0);
+            const change = payment - total;
+            document.getElementById('change').textContent = change < 0 ? `Reste à rendre: Insuffisant` : `Reste à rendre: ${change.toFixed(2)}€`;
+        }
+
+        // Initialiser le panier
+        displayCart();
+    </script>
+
+</body>
+</html>
