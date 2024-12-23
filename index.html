@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historique du Texte et Rappels</title>
+    <title>Application Textes, Rappels & Supermarché</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,7 +21,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        input[type="text"], input[type="datetime-local"] {
+        input[type="text"], input[type="datetime-local"], input[type="number"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -37,18 +37,16 @@
         button:hover {
             background-color: #45a049;
         }
-        #login-container {
-            margin-top: 50px;
-            text-align: center;
-        }
-        #main-content {
+        #login-container, #register-container, #main-content, #supermarket {
             display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Login -->
+    <h1>Application Textes, Rappels & Supermarché</h1>
+
+    <!-- Section Connexion -->
     <div id="login-container">
         <h2>Connexion</h2>
         <input type="text" id="username" placeholder="Identifiant" />
@@ -59,8 +57,8 @@
         <button onclick="showRegister()">S'inscrire</button>
     </div>
 
-    <!-- Registration -->
-    <div id="register-container" style="display: none;">
+    <!-- Section Inscription -->
+    <div id="register-container">
         <h2>S'inscrire</h2>
         <input type="text" id="new-username" placeholder="Nouveau Identifiant" />
         <input type="password" id="new-password" placeholder="Nouveau Mot de passe" />
@@ -69,27 +67,56 @@
         <p id="register-error" style="color: red; display: none;">Ce nom d'utilisateur existe déjà !</p>
     </div>
 
-    <!-- Page principale -->
+    <!-- Page principale Textes et Rappels -->
     <div id="main-content">
-        <h1>Entrez votre texte ou ajoutez un rappel</h1>
+        <h2>Textes et Rappels</h2>
 
         <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
         
         <button onclick="saveText()">Sauvegarder le texte</button>
         <button onclick="clearHistory()">Supprimer l'historique</button>
 
-        <h2>Historique des textes :</h2>
+        <h3>Historique des textes :</h3>
         <div id="historique"></div>
 
-        <h2>Agenda/Rappels :</h2>
+        <h3>Agenda/Rappels :</h3>
         <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
         <input type="datetime-local" id="reminderTime" />
         <button onclick="addReminder()">Ajouter un rappel</button>
         <div id="agenda"></div>
 
-        <h2>IA Vocale</h2>
-        <button onclick="startVoiceInteraction()">Commencer l'interaction vocale</button>
-        <p id="ai-response"></p>
+        <br>
+        <button onclick="showSupermarket()">Accéder au Système de Caisse Supermarché</button>
+    </div>
+
+    <!-- Page Supermarché -->
+    <div id="supermarket">
+        <h2>Système de Caisse Supermarché</h2>
+
+        <div id="scanner">
+            <label for="product-code">Scanner ou entrer le code produit :</label>
+            <input type="text" id="product-code" placeholder="Code produit" />
+            <button onclick="addProduct()">Ajouter au panier</button>
+        </div>
+
+        <div id="product-list">
+            <h3>Produits dans le panier :</h3>
+            <ul id="products"></ul>
+        </div>
+
+        <div id="display">
+            <div id="total">Total: 0€</div>
+            <div id="count">Articles: 0</div>
+            <div id="paid">
+                <label for="payment">Montant payé :</label>
+                <input type="number" id="payment" placeholder="Entrez montant payé" />
+                <button onclick="calculateChange()">Calculer le reste à rendre</button>
+            </div>
+            <div id="change">Reste à rendre: 0€</div>
+        </div>
+
+        <br>
+        <button onclick="showTextesRappels()">Retour à Textes et Rappels</button>
     </div>
 
     <script>
@@ -141,20 +168,6 @@
             }
         }
 
-        // Charger l'historique des textes
-        function loadHistory() {
-            const historique = JSON.parse(localStorage.getItem('historique')) || [];
-            const historiqueDiv = document.getElementById('historique');
-            historiqueDiv.innerHTML = '';
-
-            historique.forEach(function(text, index) {
-                const div = document.createElement('div');
-                div.classList.add('historique-item');
-                div.innerHTML = `<strong>Texte ${index + 1}:</strong><br>${text}`;
-                historiqueDiv.appendChild(div);
-            });
-        }
-
         // Sauvegarder le texte dans le stockage local
         function saveText() {
             const text = document.getElementById('textInput').value;
@@ -178,6 +191,20 @@
             }
         }
 
+        // Charger l'historique des textes
+        function loadHistory() {
+            const historique = JSON.parse(localStorage.getItem('historique')) || [];
+            const historiqueDiv = document.getElementById('historique');
+            historiqueDiv.innerHTML = '';
+
+            historique.forEach(function(text, index) {
+                const div = document.createElement('div');
+                div.classList.add('historique-item');
+                div.innerHTML = `<strong>Texte ${index + 1}:</strong><br>${text}`;
+                historiqueDiv.appendChild(div);
+            });
+        }
+
         // Ajouter un rappel avec date/heure
         function addReminder() {
             const reminderText = document.getElementById('agendaInput').value.trim();
@@ -199,7 +226,7 @@
             loadAgenda();
         }
 
-        // Charger l'agenda au chargement de la page
+        // Charger l'agenda des rappels
         function loadAgenda() {
             const agenda = JSON.parse(localStorage.getItem('agenda')) || [];
             const agendaDiv = document.getElementById('agenda');
@@ -230,34 +257,74 @@
             loadAgenda();
         }
 
-        // Démarrer l'interaction vocale avec l'IA
-        function startVoiceInteraction() {
-            const synth = window.speechSynthesis;
-            const speakText = new SpeechSynthesisUtterance("Bonjour, je suis votre assistant vocal. Comment puis-je vous aider aujourd'hui ?");
-            synth.speak(speakText);
+        // Section Supermarché
+        const productsDatabase = {
+            "001": { name: "Pommes", price: 2.5 },
+            "002": { name: "Bananes", price: 1.8 },
+            "003": { name: "Oranges", price: 3.0 },
+            "004": { name: "Pâtes", price: 1.2 },
+            "005": { name: "Tomates", price: 2.0 }
+        };
 
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'fr-FR';
-            recognition.start();
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-            recognition.onresult = function(event) {
-                const userResponse = event.results[0][0].transcript;
-                document.getElementById('ai-response').textContent = `Vous avez dit : ${userResponse}`;
-
-                // Répondre à l'utilisateur
-                let replyText = "";
-                if (userResponse.includes("quel temps fait-il") || userResponse.includes("météo")) {
-                    replyText = "Je ne peux pas obtenir la météo en local pour le moment.";
-                } else if (userResponse.includes("quel est ton nom")) {
-                    replyText = "Je suis votre assistant vocal.";
-                } else {
-                    replyText = `Vous avez dit : ${userResponse}. Que voulez-vous faire ensuite ?`;
-                }
-
-                const reply = new SpeechSynthesisUtterance(replyText);
-                synth.speak(reply);
-            };
+        // Afficher le panier
+        function displayCart() {
+            const productList = document.getElementById('products');
+            productList.innerHTML = '';
+            let total = 0;
+            cart.forEach(product => {
+                const li = document.createElement('li');
+                li.classList.add('product');
+                li.innerHTML = `<span class="product-name">${product.name}</span> - <span class="product-price">${product.price}€</span>`;
+                productList.appendChild(li);
+                total += product.price;
+            });
+            document.getElementById('total').textContent = `Total: ${total.toFixed(2)}€`;
+            document.getElementById('count').textContent = `Articles: ${cart.length}`;
+            localStorage.setItem('cart', JSON.stringify(cart));
         }
+
+        // Ajouter un produit au panier
+        function addProduct() {
+            const code = document.getElementById('product-code').value.trim();
+            if (productsDatabase[code]) {
+                const product = productsDatabase[code];
+                cart.push(product);
+                displayCart();
+                document.getElementById('product-code').value = '';
+            } else {
+                alert("Produit non trouvé.");
+            }
+        }
+
+        // Calculer le reste à rendre
+        function calculateChange() {
+            const payment = parseFloat(document.getElementById('payment').value);
+            if (isNaN(payment) || payment < 0) {
+                alert("Veuillez entrer un montant valide.");
+                return;
+            }
+            const total = cart.reduce((sum, product) => sum + product.price, 0);
+            const change = payment - total;
+            document.getElementById('change').textContent = change < 0 ? `Reste à rendre: Insuffisant` : `Reste à rendre: ${change.toFixed(2)}€`;
+        }
+
+        // Afficher la page de supermarché
+        function showSupermarket() {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('supermarket').style.display = 'block';
+        }
+
+        // Afficher la page de textes et rappels
+        function showTextesRappels() {
+            document.getElementById('supermarket').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+        // Initialiser les sections au démarrage
+        loadHistory();
+        displayCart();
     </script>
 
 </body>
