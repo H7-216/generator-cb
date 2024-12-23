@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historique du Texte et Rappels</title>
+    <title>Application Textes et Rappels</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,18 +37,16 @@
         button:hover {
             background-color: #45a049;
         }
-        #login-container {
-            margin-top: 50px;
-            text-align: center;
-        }
-        #main-content {
+        #login-container, #register-container, #main-content {
             display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Login -->
+    <h1>Application Textes et Rappels</h1>
+
+    <!-- Connexion -->
     <div id="login-container">
         <h2>Connexion</h2>
         <input type="text" id="username" placeholder="Identifiant" />
@@ -59,7 +57,7 @@
         <button onclick="showRegister()">S'inscrire</button>
     </div>
 
-    <!-- Registration -->
+    <!-- Inscription -->
     <div id="register-container" style="display: none;">
         <h2>S'inscrire</h2>
         <input type="text" id="new-username" placeholder="Nouveau Identifiant" />
@@ -71,7 +69,7 @@
 
     <!-- Page principale -->
     <div id="main-content">
-        <h1>Entrez votre texte ou ajoutez un rappel</h1>
+        <h2>Textes et Rappels</h2>
 
         <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
         
@@ -86,14 +84,13 @@
         <input type="datetime-local" id="reminderTime" />
         <button onclick="addReminder()">Ajouter un rappel</button>
         <div id="agenda"></div>
-
-        <br>
-        <!-- Lien vers la page de supermarché -->
-        <button onclick="window.location.href = 'supermarket.html';">Accéder au Système de Caisse Supermarché</button>
     </div>
 
     <script>
-        // Vérifier la connexion
+        // Variables globales
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Fonction pour vérifier la connexion
         function checkLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -111,19 +108,19 @@
             }
         }
 
-        // Afficher la page d'inscription
+        // Fonction pour afficher la page d'inscription
         function showRegister() {
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('register-container').style.display = 'block';
         }
 
-        // Retourner à la page de connexion
+        // Fonction pour retourner à la page de connexion
         function backToLogin() {
             document.getElementById('login-container').style.display = 'block';
             document.getElementById('register-container').style.display = 'none';
         }
 
-        // Enregistrer un nouvel utilisateur
+        // Fonction pour enregistrer un nouvel utilisateur
         function registerUser() {
             const username = document.getElementById('new-username').value;
             const password = document.getElementById('new-password').value;
@@ -148,7 +145,6 @@
                 let historique = JSON.parse(localStorage.getItem('historique')) || [];
                 historique.push(text);
                 localStorage.setItem('historique', JSON.stringify(historique));
-
                 document.getElementById('textInput').value = '';
                 loadHistory();
             } else {
