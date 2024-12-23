@@ -63,12 +63,16 @@
     </div>
 
     <script>
+        // Base de données locale simulée des produits
         const productsDatabase = {
             "001": { name: "Pommes", price: 2.5 },
             "002": { name: "Bananes", price: 1.8 },
             "003": { name: "Oranges", price: 3.0 },
             "004": { name: "Pâtes", price: 1.2 },
-            "005": { name: "Tomates", price: 2.0 }
+            "005": { name: "Tomates", price: 2.0 },
+            "006": { name: "Lait", price: 1.5 },
+            "007": { name: "Fromage", price: 3.5 },
+            "008": { name: "Pain", price: 1.0 }
         };
 
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
