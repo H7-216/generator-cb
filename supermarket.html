@@ -3,52 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scanner Code-Barres</title>
+    <title>Supermarché</title>
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <style>
-        #scanner-container {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: #000;
+        body {
+            font-family: Arial, sans-serif;
         }
-        #scanner-container video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        #scanner {
+            margin: 20px 0;
         }
-        #product-info {
-            margin-top: 20px;
+        #product-list {
+            margin: 20px 0;
+        }
+        .product {
+            margin-bottom: 10px;
+        }
+        .product-name {
+            font-weight: bold;
+        }
+        .product-price {
+            color: green;
+        }
+        #display {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        #total {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Scanner Code-Barres</h1>
+    <h1>Système de Caisse Supermarché</h1>
 
-    <!-- Conteneur de la caméra pour scanner le code-barres -->
-    <div id="scanner-container">
-        <!-- Le scanner de code-barres sera affiché ici -->
+    <div id="scanner">
+        <label for="product-code">Scanner ou entrer le code produit :</label>
+        <input type="text" id="product-code" placeholder="Code produit" />
+        <button onclick="addProduct()">Ajouter au panier</button>
     </div>
 
-    <div id="product-info">
-        <h3>Information du produit :</h3>
-        <div id="product-name">Nom du produit : </div>
-        <div id="product-price">Prix : </div>
+    <div id="product-list">
+        <h3>Produits dans le panier :</h3>
+        <ul id="products"></ul>
+    </div>
+
+    <div id="display">
+        <div id="total">Total: 0€</div>
+        <div id="count">Articles: 0</div>
+        <div id="paid">
+            <label for="payment">Montant payé :</label>
+            <input type="number" id="payment" placeholder="Entrez montant payé" />
+            <button onclick="calculateChange()">Calculer le reste à rendre</button>
+        </div>
+        <div id="change">Reste à rendre: 0€</div>
     </div>
 
     <script>
-        // Base de données locale des produits simulée
+        // Base de données locale simulée avec un nombre plus large de produits
         const productsDatabase = {
             "1234567890": { name: "Pommes", price: 2.5 },
             "0987654321": { name: "Bananes", price: 1.8 },
             "1357912468": { name: "Oranges", price: 3.0 },
-            "2468135790": { name: "Pâtes", price: 1.2 }
+            "2468135790": { name: "Pâtes", price: 1.2 },
+            "9876543210": { name: "Lait", price: 1.5 },
+            "1231231230": { name: "Fromage", price: 3.5 },
+            "3213213210": { name: "Pain", price: 1.0 },
+            "9879879870": { name: "Chocolat", price: 2.8 }
         };
 
-        // Initialiser Quagga pour le scanner de code-barres
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // Afficher le panier
+        function displayCart() {
+            const productList = document.getElementById('products');
+            productList.innerHTML = '';
+            let total = 0;
+            cart.forEach(product => {
+                const li = document.createElement('li');
+                li.classList.add('product');
+                li.innerHTML = `<span class="product-name">${product.name}</span> - <span class="product-price">${product.price}€</span>`;
+                productList.appendChild(li);
+                total += product.price;
+            });
+            document.getElementById('total').textContent = `Total: ${total.toFixed(2)}€`;
+            document.getElementById('count').textContent = `Articles: ${cart.length}`;
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Ajouter un produit au panier
+        function addProduct() {
+            const code = document.getElementById('product-code').value.trim();
+            if (productsDatabase[code]) {
+                const product = productsDatabase[code];
+                cart.push(product);
+                displayCart();
+                document.getElementById('product-code').value = '';
+            } else {
+                alert("Produit non trouvé.");
+            }
+        }
+
+        // Calculer le reste à rendre
+        function calculateChange() {
+            const payment = parseFloat(document.getElementById('payment').value);
+            if (isNaN(payment) || payment < 0) {
+                alert("Veuillez entrer un montant valide.");
+                return;
+            }
+            const total = cart.reduce((sum, product) => sum + product.price, 0);
+            const change = payment - total;
+            document.getElementById('change').textContent = change < 0 ? `Reste à rendre: Insuffisant` : `Reste à rendre: ${change.toFixed(2)}€`;
+        }
+
+        // Initialiser le panier
+        displayCart();
+
+        // Initialiser Quagga pour scanner les codes-barres
         function initScanner() {
             Quagga.init({
                 inputStream: {
@@ -80,11 +155,11 @@
                 // Chercher le produit dans la base de données locale
                 if (productsDatabase[code]) {
                     const product = productsDatabase[code];
-                    document.getElementById('product-name').innerHTML = "Nom du produit : " + product.name;
-                    document.getElementById('product-price').innerHTML = "Prix : " + product.price + "€";
+                    alert(`Produit trouvé : ${product.name}, Prix : ${product.price}€`);
+                    cart.push(product);
+                    displayCart();
                 } else {
-                    document.getElementById('product-name').innerHTML = "Produit non trouvé.";
-                    document.getElementById('product-price').innerHTML = "";
+                    alert("Produit non trouvé dans la base de données.");
                 }
             });
         }
