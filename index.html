@@ -232,12 +232,10 @@
 
         // Démarrer l'interaction vocale avec l'IA
         function startVoiceInteraction() {
-            // Demander à l'IA de parler
             const synth = window.speechSynthesis;
             const speakText = new SpeechSynthesisUtterance("Bonjour, je suis votre assistant vocal. Comment puis-je vous aider aujourd'hui ?");
             synth.speak(speakText);
 
-            // Démarrer la reconnaissance vocale
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'fr-FR';
             recognition.start();
@@ -247,8 +245,17 @@
                 document.getElementById('ai-response').textContent = `Vous avez dit : ${userResponse}`;
 
                 // Répondre à l'utilisateur
-                const replyText = new SpeechSynthesisUtterance(`Vous avez dit ${userResponse}. Que voulez-vous faire ensuite ?`);
-                synth.speak(replyText);
+                let replyText = "";
+                if (userResponse.includes("quel temps fait-il") || userResponse.includes("météo")) {
+                    replyText = "Je ne peux pas obtenir la météo en local pour le moment.";
+                } else if (userResponse.includes("quel est ton nom")) {
+                    replyText = "Je suis votre assistant vocal.";
+                } else {
+                    replyText = `Vous avez dit : ${userResponse}. Que voulez-vous faire ensuite ?`;
+                }
+
+                const reply = new SpeechSynthesisUtterance(replyText);
+                synth.speak(reply);
             };
         }
     </script>
