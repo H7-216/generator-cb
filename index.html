@@ -37,43 +37,10 @@
         button:hover {
             background: darkblue;
         }
-        .id-card {
-            width: 400px;
+        canvas {
+            display: block;
             margin: auto;
-            background: white;
             border: 2px solid black;
-            padding: 20px;
-            text-align: left;
-            font-size: 14px;
-            display: none;
-            position: relative;
-        }
-        .id-card h3 {
-            text-align: center;
-            margin: 0;
-        }
-        .id-card img {
-            width: 80px;
-            height: 100px;
-            border: 1px solid black;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-        .signature {
-            width: 120px;
-            height: 30px;
-            border-bottom: 1px solid black;
-            margin-top: 10px;
-        }
-        .mrz {
-            font-family: monospace;
-            background: black;
-            color: white;
-            padding: 5px;
-            text-align: center;
-            font-size: 12px;
-            margin-top: 10px;
         }
     </style>
 </head>
@@ -111,79 +78,53 @@
         <label>Taille (cm):</label>
         <input type="number" id="taille" placeholder="Ex: 180">
 
-        <label>Adresse:</label>
-        <input type="text" id="adresse" placeholder="Ex: 1 Boulevard Haussmann, Paris">
-
         <label>Date d'expiration:</label>
         <input type="date" id="expiration">
-
-        <label>Téléchargez votre photo:</label>
-        <input type="file" id="photo" accept="image/*">
 
         <button onclick="genererCarte()">Générer la carte</button>
         <button onclick="telechargerCarte()">Télécharger la carte</button>
     </div>
 
-    <div class="id-card" id="carte">
-        <h3>République Française</h3>
-        <p><b>Numéro d'identité:</b> <span id="resNumId"></span></p>
-        <p><b>Nom:</b> <span id="resNom"></span></p>
-        <p><b>Prénom:</b> <span id="resPrenom"></span></p>
-        <p><b>Date de naissance:</b> <span id="resDob"></span></p>
-        <p><b>Lieu de naissance:</b> <span id="resLieu"></span></p>
-        <p><b>Nationalité:</b> <span id="resNationalite"></span></p>
-        <p><b>Sexe:</b> <span id="resSexe"></span></p>
-        <p><b>Taille:</b> <span id="resTaille"></span> cm</p>
-        <p><b>Adresse:</b> <span id="resAdresse"></span></p>
-        <p><b>Expiration:</b> <span id="resExpiration"></span></p>
-        <p><b>Signature:</b></p>
-        <div class="signature"></div>
-        <img id="resPhoto" src="" alt="Photo d'identité">
-        <div class="mrz">
-            <span id="resMRZ"></span>
-        </div>
-    </div>
+    <canvas id="carteCanvas" width="800" height="600"></canvas>
 
     <script>
         function genererCarte() {
-            let numId = Math.floor(100000000 + Math.random() * 900000000); // Numéro unique généré aléatoirement
-            document.getElementById("resNumId").innerText = numId;
-            document.getElementById("resNom").innerText = document.getElementById("nom").value;
-            document.getElementById("resPrenom").innerText = document.getElementById("prenom").value;
-            document.getElementById("resDob").innerText = document.getElementById("dob").value;
-            document.getElementById("resLieu").innerText = document.getElementById("lieu").value;
-            document.getElementById("resNationalite").innerText = document.getElementById("nationalite").value;
-            document.getElementById("resSexe").innerText = document.getElementById("sexe").value;
-            document.getElementById("resTaille").innerText = document.getElementById("taille").value;
-            document.getElementById("resAdresse").innerText = document.getElementById("adresse").value;
-            document.getElementById("resExpiration").innerText = document.getElementById("expiration").value;
-            
-            let photoInput = document.getElementById("photo").files[0];
-            if (photoInput) {
-                let reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById("resPhoto").src = e.target.result;
-                };
-                reader.readAsDataURL(photoInput);
-            }
+            let canvas = document.getElementById("carteCanvas");
+            let ctx = canvas.getContext("2d");
+            let img = new Image();
+            img.src = "carte_identite_modele.jpg"; // Remplace avec ton image réelle
 
-            let mrz = `IDFRA${document.getElementById("nom").value}<<${document.getElementById("prenom").value}<<<<${numId}`;
-            document.getElementById("resMRZ").innerText = mrz;
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 800, 600); // Ajuste selon la taille de ton image
+                
+                // Configuration du texte
+                ctx.font = "bold 18px Arial";
+                ctx.fillStyle = "black";
 
-            document.getElementById("carte").style.display = "block";
+                // Positionnement du texte
+                ctx.fillText(document.getElementById("nom").value, 200, 150); // Nom
+                ctx.fillText(document.getElementById("prenom").value, 200, 180); // Prénom
+                ctx.fillText(document.getElementById("dob").value, 200, 210); // Date de naissance
+                ctx.fillText(document.getElementById("lieu").value, 200, 240); // Lieu de naissance
+                ctx.fillText(document.getElementById("nationalite").value, 200, 270); // Nationalité
+                ctx.fillText(document.getElementById("sexe").value, 200, 300); // Sexe
+                ctx.fillText(document.getElementById("taille").value + " cm", 200, 330); // Taille
+                ctx.fillText(document.getElementById("expiration").value, 200, 360); // Expiration
+
+                // Zone MRZ
+                let mrz = `IDFRA${document.getElementById("nom").value}<<${document.getElementById("prenom").value}<<<<123456789`;
+                ctx.fillText(mrz, 50, 500);
+            };
         }
 
         function telechargerCarte() {
-            html2canvas(document.getElementById("carte")).then(canvas => {
-                let link = document.createElement("a");
-                link.href = canvas.toDataURL();
-                link.download = "Carte_Identite.png";
-                link.click();
-            });
+            let canvas = document.getElementById("carteCanvas");
+            let link = document.createElement("a");
+            link.href = canvas.toDataURL("image/png");
+            link.download = "Carte_Identite.png";
+            link.click();
         }
     </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
 
 </body>
 </html>
