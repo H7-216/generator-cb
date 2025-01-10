@@ -18,7 +18,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        select, button {
+        select, button, input {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -77,6 +77,14 @@
             right: 20px;
             bottom: 20px;
         }
+        .card-holder {
+            font-size: 16px;
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
         .copy {
             background: green;
         }
@@ -90,6 +98,9 @@
     <div class="container">
         <h2>Générateur de Cartes Bancaires</h2>
         
+        <label>Nom du Titulaire :</label>
+        <input type="text" id="nomTitulaire" placeholder="Entrez votre nom">
+
         <label>Choisir un type de carte :</label>
         <select id="typeCarte">
             <option value="Visa">Visa</option>
@@ -107,12 +118,14 @@
             <p class="card-number" id="resNumero"></p>
             <p class="card-expiration"><strong>EXP :</strong> <span id="resExpiration"></span></p>
             <p class="card-cvv"><strong>CVV :</strong> <span id="resCVV"></span></p>
+            <p class="card-holder" id="resTitulaire"></p>
         </div>
     </div>
 
     <script>
         function genererCarte() {
             let typeCarte = document.getElementById("typeCarte").value;
+            let nomTitulaire = document.getElementById("nomTitulaire").value.toUpperCase(); // Nom en majuscules comme sur une vraie carte
             let numeroCarte = genererNumero(typeCarte);
             let expiration = genererExpiration();
             let cvv = genererCVV(typeCarte);
@@ -120,6 +133,7 @@
             document.getElementById("resNumero").innerText = numeroCarte;
             document.getElementById("resExpiration").innerText = expiration;
             document.getElementById("resCVV").innerText = cvv;
+            document.getElementById("resTitulaire").innerText = nomTitulaire || "TITULAIRE DE LA CARTE"; // Par défaut
 
             // Charger le bon logo en fonction du type de carte
             let logoCarte = document.getElementById("logoCarte");
