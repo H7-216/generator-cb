@@ -97,23 +97,28 @@
             img.onload = function() {
                 ctx.drawImage(img, 0, 0, 800, 600); // Ajuste selon la taille de ton image
                 
-                // Configuration du texte
-                ctx.font = "bold 18px Arial";
+                // Configuration du texte (police similaire à l'original)
+                ctx.font = "bold 20px Arial";
                 ctx.fillStyle = "black";
 
-                // Positionnement du texte
-                ctx.fillText(document.getElementById("nom").value, 200, 150); // Nom
-                ctx.fillText(document.getElementById("prenom").value, 200, 180); // Prénom
-                ctx.fillText(document.getElementById("dob").value, 200, 210); // Date de naissance
-                ctx.fillText(document.getElementById("lieu").value, 200, 240); // Lieu de naissance
-                ctx.fillText(document.getElementById("nationalite").value, 200, 270); // Nationalité
-                ctx.fillText(document.getElementById("sexe").value, 200, 300); // Sexe
-                ctx.fillText(document.getElementById("taille").value + " cm", 200, 330); // Taille
-                ctx.fillText(document.getElementById("expiration").value, 200, 360); // Expiration
+                // Placement précis des informations sur la carte
+                ctx.fillText(document.getElementById("nom").value, 220, 135); // Nom
+                ctx.fillText(document.getElementById("prenom").value, 220, 165); // Prénom
+                ctx.fillText(document.getElementById("dob").value, 220, 195); // Date de naissance
+                ctx.fillText(document.getElementById("lieu").value, 220, 225); // Lieu de naissance
+                ctx.fillText(document.getElementById("nationalite").value, 220, 255); // Nationalité
+                ctx.fillText(document.getElementById("sexe").value, 220, 285); // Sexe
+                ctx.fillText(document.getElementById("taille").value + " cm", 220, 315); // Taille
+                ctx.fillText(document.getElementById("expiration").value, 220, 345); // Expiration
+
+                // Génération du numéro unique
+                let numId = Math.floor(100000000 + Math.random() * 900000000);
+                ctx.fillText(numId, 220, 105); // Numéro d'identité
 
                 // Zone MRZ
-                let mrz = `IDFRA${document.getElementById("nom").value}<<${document.getElementById("prenom").value}<<<<123456789`;
-                ctx.fillText(mrz, 50, 500);
+                let mrz = `IDFRA${document.getElementById("nom").value}<<${document.getElementById("prenom").value}<<<<${numId}`;
+                ctx.font = "bold 16px monospace";
+                ctx.fillText(mrz, 50, 570);
             };
         }
 
