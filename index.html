@@ -10,9 +10,6 @@
             background-color: #f4f4f4;
             text-align: center;
         }
-        h2 {
-            color: #333;
-        }
         .container {
             max-width: 600px;
             margin: auto;
@@ -35,6 +32,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
+            margin-top: 10px;
         }
         button:hover {
             background: darkblue;
@@ -61,6 +59,21 @@
             position: absolute;
             top: 20px;
             right: 20px;
+        }
+        .signature {
+            width: 120px;
+            height: 30px;
+            border-bottom: 1px solid black;
+            margin-top: 10px;
+        }
+        .mrz {
+            font-family: monospace;
+            background: black;
+            color: white;
+            padding: 5px;
+            text-align: center;
+            font-size: 12px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -108,10 +121,12 @@
         <input type="file" id="photo" accept="image/*">
 
         <button onclick="genererCarte()">Générer la carte</button>
+        <button onclick="telechargerCarte()">Télécharger la carte</button>
     </div>
 
     <div class="id-card" id="carte">
         <h3>République Française</h3>
+        <p><b>Numéro d'identité:</b> <span id="resNumId"></span></p>
         <p><b>Nom:</b> <span id="resNom"></span></p>
         <p><b>Prénom:</b> <span id="resPrenom"></span></p>
         <p><b>Date de naissance:</b> <span id="resDob"></span></p>
@@ -121,11 +136,18 @@
         <p><b>Taille:</b> <span id="resTaille"></span> cm</p>
         <p><b>Adresse:</b> <span id="resAdresse"></span></p>
         <p><b>Expiration:</b> <span id="resExpiration"></span></p>
+        <p><b>Signature:</b></p>
+        <div class="signature"></div>
         <img id="resPhoto" src="" alt="Photo d'identité">
+        <div class="mrz">
+            <span id="resMRZ"></span>
+        </div>
     </div>
 
     <script>
         function genererCarte() {
+            let numId = Math.floor(100000000 + Math.random() * 900000000); // Numéro unique généré aléatoirement
+            document.getElementById("resNumId").innerText = numId;
             document.getElementById("resNom").innerText = document.getElementById("nom").value;
             document.getElementById("resPrenom").innerText = document.getElementById("prenom").value;
             document.getElementById("resDob").innerText = document.getElementById("dob").value;
@@ -143,13 +165,25 @@
                     document.getElementById("resPhoto").src = e.target.result;
                 };
                 reader.readAsDataURL(photoInput);
-            } else {
-                document.getElementById("resPhoto").src = "";
             }
+
+            let mrz = `IDFRA${document.getElementById("nom").value}<<${document.getElementById("prenom").value}<<<<${numId}`;
+            document.getElementById("resMRZ").innerText = mrz;
 
             document.getElementById("carte").style.display = "block";
         }
+
+        function telechargerCarte() {
+            html2canvas(document.getElementById("carte")).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL();
+                link.download = "Carte_Identite.png";
+                link.click();
+            });
+        }
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
 
 </body>
 </html>
