@@ -36,13 +36,46 @@
             background: darkblue;
         }
         .card {
-            background: #ddd;
-            padding: 20px;
-            border-radius: 8px;
+            width: 350px;
+            height: 200px;
+            background: linear-gradient(to right, #0044cc, #001133);
+            border-radius: 15px;
+            color: white;
             text-align: left;
-            margin-top: 20px;
-            font-size: 18px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin: auto;
+            position: relative;
+            font-family: 'Arial', sans-serif;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+        .card .puce {
+            width: 50px;
+            height: 35px;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+        .card .logo {
+            width: 60px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+        .card-number {
+            font-size: 20px;
+            letter-spacing: 2px;
+            margin-top: 50px;
+        }
+        .card-expiration {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .card-cvv {
+            font-size: 14px;
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
         }
         .copy {
             background: green;
@@ -66,13 +99,14 @@
         </select>
 
         <button onclick="genererCarte()">Générer une carte</button>
+        <button onclick="telechargerCarte()">Télécharger la carte</button>
 
-        <div class="card" id="cardDetails" style="display: none;">
-            <p><strong>Type :</strong> <span id="resType"></span></p>
-            <p><strong>Numéro :</strong> <span id="resNumero"></span></p>
-            <p><strong>Date d'expiration :</strong> <span id="resExpiration"></span></p>
-            <p><strong>CVV :</strong> <span id="resCVV"></span></p>
-            <button class="copy" onclick="copierCarte()">Copier les informations</button>
+        <div class="card" id="cardDetails">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/SmartCard.jpg" class="puce" alt="Puce">
+            <img id="logoCarte" class="logo" alt="Logo Carte">
+            <p class="card-number" id="resNumero"></p>
+            <p class="card-expiration"><strong>EXP :</strong> <span id="resExpiration"></span></p>
+            <p class="card-cvv"><strong>CVV :</strong> <span id="resCVV"></span></p>
         </div>
     </div>
 
@@ -83,10 +117,21 @@
             let expiration = genererExpiration();
             let cvv = genererCVV(typeCarte);
 
-            document.getElementById("resType").innerText = typeCarte;
             document.getElementById("resNumero").innerText = numeroCarte;
             document.getElementById("resExpiration").innerText = expiration;
             document.getElementById("resCVV").innerText = cvv;
+
+            // Charger le bon logo en fonction du type de carte
+            let logoCarte = document.getElementById("logoCarte");
+            if (typeCarte === "Visa") {
+                logoCarte.src = "https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg";
+            } else if (typeCarte === "Mastercard") {
+                logoCarte.src = "https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg";
+            } else if (typeCarte === "American Express") {
+                logoCarte.src = "https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg";
+            } else {
+                logoCarte.src = "https://upload.wikimedia.org/wikipedia/commons/4/4f/Discover_Card_logo.svg";
+            }
 
             document.getElementById("cardDetails").style.display = "block";
         }
@@ -124,17 +169,17 @@
             return cvv;
         }
 
-        function copierCarte() {
-            let details = `
-Type : ${document.getElementById("resType").innerText}
-Numéro : ${document.getElementById("resNumero").innerText}
-Expiration : ${document.getElementById("resExpiration").innerText}
-CVV : ${document.getElementById("resCVV").innerText}
-            `;
-            navigator.clipboard.writeText(details);
-            alert("Informations copiées !");
+        function telechargerCarte() {
+            html2canvas(document.getElementById("cardDetails")).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL();
+                link.download = "Carte_Bancaire.png";
+                link.click();
+            });
         }
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
 
 </body>
 </html>
