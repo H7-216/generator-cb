@@ -3,227 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Textes et Rappels</title>
+    <title>Générateur de Carte d'Identité</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
         }
-        textarea {
+        h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, select {
             width: 100%;
-            height: 150px;
-        }
-        #historique, #agenda {
-            margin-top: 20px;
-        }
-        .historique-item, .agenda-item {
-            margin-bottom: 10px;
-            padding: 10px;
+            padding: 8px;
+            margin: 5px 0;
             border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        input[type="text"], input[type="datetime-local"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 16px;
+            border-radius: 4px;
         }
         button {
-            padding: 10px;
-            background-color: #4CAF50;
+            background: blue;
             color: white;
+            padding: 10px;
             border: none;
             cursor: pointer;
+            width: 100%;
         }
         button:hover {
-            background-color: #45a049;
+            background: darkblue;
         }
-        #login-container, #register-container, #main-content {
+        .id-card {
+            width: 400px;
+            margin: auto;
+            background: white;
+            border: 2px solid black;
+            padding: 20px;
+            text-align: left;
+            font-size: 14px;
             display: none;
+            position: relative;
+        }
+        .id-card h3 {
+            text-align: center;
+            margin: 0;
+        }
+        .id-card img {
+            width: 80px;
+            height: 100px;
+            border: 1px solid black;
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Application Textes et Rappels</h1>
-
-    <!-- Connexion -->
-    <div id="login-container">
-        <h2>Connexion</h2>
-        <input type="text" id="username" placeholder="Identifiant" />
-        <input type="password" id="password" placeholder="Mot de passe" />
-        <button onclick="checkLogin()">Se connecter</button>
-        <p id="login-error" style="color: red; display: none;">Identifiant ou mot de passe incorrect !</p>
-        <br><br>
-        <button onclick="showRegister()">S'inscrire</button>
-    </div>
-
-    <!-- Inscription -->
-    <div id="register-container" style="display: none;">
-        <h2>S'inscrire</h2>
-        <input type="text" id="new-username" placeholder="Nouveau Identifiant" />
-        <input type="password" id="new-password" placeholder="Nouveau Mot de passe" />
-        <button onclick="registerUser()">S'inscrire</button>
-        <button onclick="backToLogin()">Retour à la connexion</button>
-        <p id="register-error" style="color: red; display: none;">Ce nom d'utilisateur existe déjà !</p>
-    </div>
-
-    <!-- Page principale -->
-    <div id="main-content">
-        <h2>Textes et Rappels</h2>
-
-        <textarea id="textInput" placeholder="Écrivez ou collez votre texte ici..."></textarea><br><br>
+    <div class="container">
+        <h2>Générateur de Carte d'Identité</h2>
+        <label>Nom:</label>
+        <input type="text" id="nom" placeholder="Entrez votre nom">
         
-        <button onclick="saveText()">Sauvegarder le texte</button>
-        <button onclick="clearHistory()">Supprimer l'historique</button>
+        <label>Prénom:</label>
+        <input type="text" id="prenom" placeholder="Entrez votre prénom">
+        
+        <label>Date de naissance:</label>
+        <input type="date" id="dob">
+        
+        <label>Lieu de naissance:</label>
+        <input type="text" id="lieu">
+        
+        <label>Nationalité:</label>
+        <select id="nationalite">
+            <option value="Française">Française</option>
+            <option value="Belge">Belge</option>
+            <option value="Suisse">Suisse</option>
+            <option value="Canadienne">Canadienne</option>
+            <option value="Autre">Autre</option>
+        </select>
 
-        <h2>Historique des textes :</h2>
-        <div id="historique"></div>
+        <label>Sexe:</label>
+        <select id="sexe">
+            <option value="M">M</option>
+            <option value="F">F</option>
+        </select>
 
-        <h2>Agenda/Rappels :</h2>
-        <input type="text" id="agendaInput" placeholder="Ajouter un rappel ici">
-        <input type="datetime-local" id="reminderTime" />
-        <button onclick="addReminder()">Ajouter un rappel</button>
-        <div id="agenda"></div>
+        <label>Taille (cm):</label>
+        <input type="number" id="taille" placeholder="Ex: 180">
+
+        <label>Adresse:</label>
+        <input type="text" id="adresse" placeholder="Ex: 1 Boulevard Haussmann, Paris">
+
+        <label>Date d'expiration:</label>
+        <input type="date" id="expiration">
+
+        <label>Téléchargez votre photo:</label>
+        <input type="file" id="photo" accept="image/*">
+
+        <button onclick="genererCarte()">Générer la carte</button>
+    </div>
+
+    <div class="id-card" id="carte">
+        <h3>République Française</h3>
+        <p><b>Nom:</b> <span id="resNom"></span></p>
+        <p><b>Prénom:</b> <span id="resPrenom"></span></p>
+        <p><b>Date de naissance:</b> <span id="resDob"></span></p>
+        <p><b>Lieu de naissance:</b> <span id="resLieu"></span></p>
+        <p><b>Nationalité:</b> <span id="resNationalite"></span></p>
+        <p><b>Sexe:</b> <span id="resSexe"></span></p>
+        <p><b>Taille:</b> <span id="resTaille"></span> cm</p>
+        <p><b>Adresse:</b> <span id="resAdresse"></span></p>
+        <p><b>Expiration:</b> <span id="resExpiration"></span></p>
+        <img id="resPhoto" src="" alt="Photo d'identité">
     </div>
 
     <script>
-        // Variables globales
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-        // Fonction pour vérifier la connexion
-        function checkLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.username === username && u.password === password);
-
-            if (user || (username === 'admin' && password === 'admin')) {
-                document.getElementById('login-container').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                loadHistory();
-                loadAgenda();
+        function genererCarte() {
+            document.getElementById("resNom").innerText = document.getElementById("nom").value;
+            document.getElementById("resPrenom").innerText = document.getElementById("prenom").value;
+            document.getElementById("resDob").innerText = document.getElementById("dob").value;
+            document.getElementById("resLieu").innerText = document.getElementById("lieu").value;
+            document.getElementById("resNationalite").innerText = document.getElementById("nationalite").value;
+            document.getElementById("resSexe").innerText = document.getElementById("sexe").value;
+            document.getElementById("resTaille").innerText = document.getElementById("taille").value;
+            document.getElementById("resAdresse").innerText = document.getElementById("adresse").value;
+            document.getElementById("resExpiration").innerText = document.getElementById("expiration").value;
+            
+            let photoInput = document.getElementById("photo").files[0];
+            if (photoInput) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("resPhoto").src = e.target.result;
+                };
+                reader.readAsDataURL(photoInput);
             } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
-        }
-
-        // Fonction pour afficher la page d'inscription
-        function showRegister() {
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('register-container').style.display = 'block';
-        }
-
-        // Fonction pour retourner à la page de connexion
-        function backToLogin() {
-            document.getElementById('login-container').style.display = 'block';
-            document.getElementById('register-container').style.display = 'none';
-        }
-
-        // Fonction pour enregistrer un nouvel utilisateur
-        function registerUser() {
-            const username = document.getElementById('new-username').value;
-            const password = document.getElementById('new-password').value;
-
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const userExists = users.find(u => u.username === username);
-
-            if (userExists) {
-                document.getElementById('register-error').style.display = 'block';
-            } else {
-                users.push({ username, password });
-                localStorage.setItem('users', JSON.stringify(users));
-                document.getElementById('register-container').style.display = 'none';
-                document.getElementById('login-container').style.display = 'block';
-            }
-        }
-
-        // Sauvegarder le texte dans le stockage local
-        function saveText() {
-            const text = document.getElementById('textInput').value;
-            if (text) {
-                let historique = JSON.parse(localStorage.getItem('historique')) || [];
-                historique.push(text);
-                localStorage.setItem('historique', JSON.stringify(historique));
-                document.getElementById('textInput').value = '';
-                loadHistory();
-            } else {
-                alert("Veuillez saisir du texte avant de sauvegarder.");
-            }
-        }
-
-        // Supprimer l'historique du stockage local
-        function clearHistory() {
-            if (confirm("Êtes-vous sûr de vouloir supprimer l'historique ?")) {
-                localStorage.removeItem('historique');
-                loadHistory();
-            }
-        }
-
-        // Charger l'historique des textes
-        function loadHistory() {
-            const historique = JSON.parse(localStorage.getItem('historique')) || [];
-            const historiqueDiv = document.getElementById('historique');
-            historiqueDiv.innerHTML = '';
-
-            historique.forEach(function(text, index) {
-                const div = document.createElement('div');
-                div.classList.add('historique-item');
-                div.innerHTML = `<strong>Texte ${index + 1}:</strong><br>${text}`;
-                historiqueDiv.appendChild(div);
-            });
-        }
-
-        // Ajouter un rappel avec date/heure
-        function addReminder() {
-            const reminderText = document.getElementById('agendaInput').value.trim();
-            const reminderTime = document.getElementById('reminderTime').value;
-
-            if (reminderText === "" || reminderTime === "") {
-                alert("Veuillez entrer un rappel et une date/heure.");
-                return;
+                document.getElementById("resPhoto").src = "";
             }
 
-            const reminder = { text: reminderText, time: reminderTime, done: false };
-
-            let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
-            reminders.push(reminder);
-            localStorage.setItem('agenda', JSON.stringify(reminders));
-
-            document.getElementById('agendaInput').value = '';
-            document.getElementById('reminderTime').value = '';
-            loadAgenda();
-        }
-
-        // Charger l'agenda des rappels
-        function loadAgenda() {
-            const agenda = JSON.parse(localStorage.getItem('agenda')) || [];
-            const agendaDiv = document.getElementById('agenda');
-            agendaDiv.innerHTML = '';
-
-            agenda.forEach(function(reminder, index) {
-                const div = document.createElement('div');
-                div.classList.add('agenda-item');
-                const doneStatus = reminder.done ? ' (Terminé)' : ' (En attente)';
-                div.innerHTML = `<strong>Rappel ${index + 1}:</strong><br>${reminder.text} ${doneStatus} <br> Heure : ${reminder.time} <br> <button onclick="markDone(${index})">Marquer comme terminé</button> <button onclick="deleteReminder(${index})">Supprimer</button>`;
-                agendaDiv.appendChild(div);
-            });
-        }
-
-        // Marquer un rappel comme terminé
-        function markDone(index) {
-            const reminders = JSON.parse(localStorage.getItem('agenda')) || [];
-            reminders[index].done = true;
-            localStorage.setItem('agenda', JSON.stringify(reminders));
-            loadAgenda();
-        }
-
-        // Supprimer un rappel spécifique de l'agenda
-        function deleteReminder(index) {
-            let reminders = JSON.parse(localStorage.getItem('agenda')) || [];
-            reminders.splice(index, 1);
-            localStorage.setItem('agenda', JSON.stringify(reminders));
-            loadAgenda();
+            document.getElementById("carte").style.display = "block";
         }
     </script>
 
