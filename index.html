@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Carte d'Identité</title>
+    <title>Générateur de Cartes Bancaires</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,123 +11,128 @@
             text-align: center;
         }
         .container {
-            max-width: 600px;
+            max-width: 400px;
             margin: auto;
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        input, select {
+        select, button {
             width: 100%;
-            padding: 8px;
-            margin: 5px 0;
+            padding: 10px;
+            margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 16px;
         }
         button {
             background: blue;
             color: white;
-            padding: 10px;
             border: none;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
         }
         button:hover {
             background: darkblue;
         }
-        canvas {
-            display: block;
-            margin: auto;
-            border: 2px solid black;
+        .card {
+            background: #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
+            margin-top: 20px;
+            font-size: 18px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        .copy {
+            background: green;
+        }
+        .copy:hover {
+            background: darkgreen;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Générateur de Carte d'Identité</h2>
-        <label>Nom:</label>
-        <input type="text" id="nom" placeholder="Entrez votre nom">
+        <h2>Générateur de Cartes Bancaires</h2>
         
-        <label>Prénom:</label>
-        <input type="text" id="prenom" placeholder="Entrez votre prénom">
-        
-        <label>Date de naissance:</label>
-        <input type="date" id="dob">
-        
-        <label>Lieu de naissance:</label>
-        <input type="text" id="lieu">
-        
-        <label>Nationalité:</label>
-        <select id="nationalite">
-            <option value="Française">Française</option>
-            <option value="Belge">Belge</option>
-            <option value="Suisse">Suisse</option>
-            <option value="Canadienne">Canadienne</option>
-            <option value="Autre">Autre</option>
+        <label>Choisir un type de carte :</label>
+        <select id="typeCarte">
+            <option value="Visa">Visa</option>
+            <option value="Mastercard">Mastercard</option>
+            <option value="American Express">American Express</option>
+            <option value="Discover">Discover</option>
         </select>
 
-        <label>Sexe:</label>
-        <select id="sexe">
-            <option value="M">M</option>
-            <option value="F">F</option>
-        </select>
+        <button onclick="genererCarte()">Générer une carte</button>
 
-        <label>Taille (cm):</label>
-        <input type="number" id="taille" placeholder="Ex: 180">
-
-        <label>Date d'expiration:</label>
-        <input type="date" id="expiration">
-
-        <button onclick="genererCarte()">Générer la carte</button>
-        <button onclick="telechargerCarte()">Télécharger la carte</button>
+        <div class="card" id="cardDetails" style="display: none;">
+            <p><strong>Type :</strong> <span id="resType"></span></p>
+            <p><strong>Numéro :</strong> <span id="resNumero"></span></p>
+            <p><strong>Date d'expiration :</strong> <span id="resExpiration"></span></p>
+            <p><strong>CVV :</strong> <span id="resCVV"></span></p>
+            <button class="copy" onclick="copierCarte()">Copier les informations</button>
+        </div>
     </div>
-
-    <canvas id="carteCanvas" width="800" height="600"></canvas>
 
     <script>
         function genererCarte() {
-            let canvas = document.getElementById("carteCanvas");
-            let ctx = canvas.getContext("2d");
-            let img = new Image();
-            img.src = "carte_identite_modele.JPG"; // Remplace avec ton image réelle
+            let typeCarte = document.getElementById("typeCarte").value;
+            let numeroCarte = genererNumero(typeCarte);
+            let expiration = genererExpiration();
+            let cvv = genererCVV(typeCarte);
 
-            img.onload = function() {
-                ctx.drawImage(img, 0, 0, 800, 600); // Ajuste selon la taille de ton image
-                
-                // Configuration du texte (police similaire à l'original)
-                ctx.font = "bold 20px Arial";
-                ctx.fillStyle = "black";
+            document.getElementById("resType").innerText = typeCarte;
+            document.getElementById("resNumero").innerText = numeroCarte;
+            document.getElementById("resExpiration").innerText = expiration;
+            document.getElementById("resCVV").innerText = cvv;
 
-                // Placement précis des informations sur la carte
-                ctx.fillText(document.getElementById("nom").value, 220, 135); // Nom
-                ctx.fillText(document.getElementById("prenom").value, 220, 165); // Prénom
-                ctx.fillText(document.getElementById("dob").value, 220, 195); // Date de naissance
-                ctx.fillText(document.getElementById("lieu").value, 220, 225); // Lieu de naissance
-                ctx.fillText(document.getElementById("nationalite").value, 220, 255); // Nationalité
-                ctx.fillText(document.getElementById("sexe").value, 220, 285); // Sexe
-                ctx.fillText(document.getElementById("taille").value + " cm", 220, 315); // Taille
-                ctx.fillText(document.getElementById("expiration").value, 220, 345); // Expiration
-
-                // Génération du numéro unique
-                let numId = Math.floor(100000000 + Math.random() * 900000000);
-                ctx.fillText(numId, 220, 105); // Numéro d'identité
-
-                // Zone MRZ
-                let mrz = `IDFRA${document.getElementById("nom").value}<<${document.getElementById("prenom").value}<<<<${numId}`;
-                ctx.font = "bold 16px monospace";
-                ctx.fillText(mrz, 50, 570);
-            };
+            document.getElementById("cardDetails").style.display = "block";
         }
 
-        function telechargerCarte() {
-            let canvas = document.getElementById("carteCanvas");
-            let link = document.createElement("a");
-            link.href = canvas.toDataURL("image/png");
-            link.download = "Carte_Identite.png";
-            link.click();
+        function genererNumero(type) {
+            let prefixe = {
+                "Visa": "4",
+                "Mastercard": "5",
+                "American Express": "34",
+                "Discover": "6011"
+            }[type];
+
+            let longueur = (type === "American Express") ? 15 : 16;
+            let numero = prefixe;
+
+            while (numero.length < longueur) {
+                numero += Math.floor(Math.random() * 10);
+            }
+
+            return numero;
+        }
+
+        function genererExpiration() {
+            let mois = ("0" + Math.floor(Math.random() * 12 + 1)).slice(-2);
+            let annee = Math.floor(Math.random() * 5 + 25); // Expiration entre 2025 et 2030
+            return mois + "/" + annee;
+        }
+
+        function genererCVV(type) {
+            let longueur = (type === "American Express") ? 4 : 3;
+            let cvv = "";
+            for (let i = 0; i < longueur; i++) {
+                cvv += Math.floor(Math.random() * 10);
+            }
+            return cvv;
+        }
+
+        function copierCarte() {
+            let details = `
+Type : ${document.getElementById("resType").innerText}
+Numéro : ${document.getElementById("resNumero").innerText}
+Expiration : ${document.getElementById("resExpiration").innerText}
+CVV : ${document.getElementById("resCVV").innerText}
+            `;
+            navigator.clipboard.writeText(details);
+            alert("Informations copiées !");
         }
     </script>
 
