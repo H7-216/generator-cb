@@ -18,7 +18,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        select, button, input {
+        select, button {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -98,9 +98,6 @@
     <div class="container">
         <h2>Générateur de Cartes Bancaires</h2>
         
-        <label>Nom du Titulaire :</label>
-        <input type="text" id="nomTitulaire" placeholder="Entrez votre nom">
-
         <label>Choisir un type de carte :</label>
         <select id="typeCarte">
             <option value="Visa">Visa</option>
@@ -125,7 +122,7 @@
     <script>
         function genererCarte() {
             let typeCarte = document.getElementById("typeCarte").value;
-            let nomTitulaire = document.getElementById("nomTitulaire").value.toUpperCase(); // Nom en majuscules comme sur une vraie carte
+            let nomTitulaire = genererNomTitulaire();
             let numeroCarte = genererNumero(typeCarte);
             let expiration = genererExpiration();
             let cvv = genererCVV(typeCarte);
@@ -133,7 +130,7 @@
             document.getElementById("resNumero").innerText = numeroCarte;
             document.getElementById("resExpiration").innerText = expiration;
             document.getElementById("resCVV").innerText = cvv;
-            document.getElementById("resTitulaire").innerText = nomTitulaire || "TITULAIRE DE LA CARTE"; // Par défaut
+            document.getElementById("resTitulaire").innerText = nomTitulaire;
 
             // Charger le bon logo en fonction du type de carte
             let logoCarte = document.getElementById("logoCarte");
@@ -148,6 +145,14 @@
             }
 
             document.getElementById("cardDetails").style.display = "block";
+        }
+
+        function genererNomTitulaire() {
+            const prenoms = ["Jean", "Marie", "Paul", "Lucie", "Alexandre", "Sophie", "Thomas", "Isabelle"];
+            const noms = ["Durand", "Lefevre", "Morel", "Garcia", "Lambert", "Fontaine", "Bernard", "Rousseau"];
+            let prenom = prenoms[Math.floor(Math.random() * prenoms.length)];
+            let nom = noms[Math.floor(Math.random() * noms.length)];
+            return (prenom + " " + nom).toUpperCase(); // Format majuscules
         }
 
         function genererNumero(type) {
