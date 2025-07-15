@@ -3,643 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Cartes - Simulation</title>
+    <title>🎾 Ping Pong Ultra - Gen Z Edition</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Animations de fond */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
         }
         
-        header {
+        .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
         
-        h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .subtitle {
-            color: #7f8c8d;
-            font-size: 1.2em;
+            font-size: 1.2rem;
+            color: #b3b3ff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .generator-section {
-            background-color: white;
-            border-radius: 10px;
+        .game-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
             padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .tabs {
-            display: flex;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             margin-bottom: 20px;
         }
         
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #ecf0f1;
-            border: none;
-            border-radius: 5px 5px 0 0;
-            margin-right: 5px;
-            font-weight: bold;
-        }
-        
-        .tab.active {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        button {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #27ae60;
-        }
-        
-        .card-preview {
-            margin-top: 30px;
-            perspective: 1000px;
-        }
-        
-        .card {
-            width: 340px;
-            height: 214px;
+        #gameCanvas {
+            border: 3px solid #fff;
             border-radius: 15px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.8s;
-            margin: 0 auto;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            box-shadow: 
+                0 0 50px rgba(255, 255, 255, 0.3),
+                inset 0 0 50px rgba(255, 255, 255, 0.1);
         }
         
-        .card.flipped {
-            transform: rotateY(180deg);
-        }
-        
-        .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 15px;
-            padding: 20px;
-            box-sizing: border-box;
+        .controls {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .card-front {
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            color: white;
-        }
-        
-        .card-back {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            transform: rotateY(180deg);
-        }
-        
-        .card-logo {
-            text-align: right;
-            height: 40px;
-        }
-        
-        .card-logo img {
-            height: 100%;
-        }
-        
-        .card-chip {
-            width: 50px;
-            height: 40px;
-            background-color: #f1c40f;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
+            gap: 15px;
             justify-content: center;
+            margin-bottom: 20px;
         }
         
-        .card-chip::before {
-            content: "";
-            width: 40px;
-            height: 30px;
-            border: 1px solid rgba(0, 0, 0, 0.3);
-            border-radius: 3px;
-        }
-        
-        .card-number {
-            font-size: 22px;
-            letter-spacing: 2px;
-            text-align: center;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .card-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-        }
-        
-        .card-holder {
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
         }
         
-        .card-expiry {
-            text-align: right;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
         }
         
-        .card-magnetic-strip {
-            height: 40px;
-            background-color: #000;
-            margin: 20px -20px;
+        .btn:active {
+            transform: translateY(0);
         }
         
-        .card-signature {
-            height: 30px;
-            background-color: #fff;
-            margin-right: 60px;
+        .btn.pause {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+        
+        .btn.pause:hover {
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.6);
+        }
+        
+        .btn.reset {
+            background: linear-gradient(45deg, #ffa726, #ff7043);
+            box-shadow: 0 4px 15px rgba(255, 167, 38, 0.4);
+        }
+        
+        .btn.reset:hover {
+            box-shadow: 0 6px 20px rgba(255, 167, 38, 0.6);
+        }
+        
+        .score-board {
             display: flex;
-            align-items: center;
-            padding-left: 10px;
-            color: #000;
-            font-style: italic;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
         }
         
-        .card-cvv {
-            text-align: right;
-            padding-right: 20px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .card-type-logo {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            height: 30px;
-        }
-        
-        .flip-btn {
-            background-color: #3498db;
-            display: block;
-            margin: 15px auto;
-            width: 100px;
-        }
-        
-        .download-btn {
-            background-color: #e74c3c;
-            display: block;
-            margin: 20px auto;
-            width: 200px;
-        }
-        
-        .download-btn:hover {
-            background-color: #c0392b;
-        }
-        
-        .id-card {
-            width: 340px;
-            height: 214px;
-            border-radius: 10px;
-            background-color: #fff;
-            position: relative;
-            margin: 0 auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        
-        .id-card-header {
-            height: 40px;
-            background-color: #3498db;
+        .score {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
-        .id-card-photo {
-            position: absolute;
-            top: 50px;
-            right: 20px;
-            width: 80px;
-            height: 100px;
-            background-color: #eee;
-            border: 1px solid #ddd;
-        }
-        
-        .id-card-details {
-            padding: 20px;
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            text-align: center;
+            font-size: 0.9rem;
+            max-width: 600px;
             margin-top: 20px;
         }
         
-        .id-card-row {
-            display: flex;
-            margin-bottom: 8px;
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #4ecdc4;
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
         }
         
-        .id-card-label {
-            font-weight: bold;
-            width: 120px;
-        }
-        
-        .id-card-value {
-            flex-grow: 1;
-        }
-        
-        .id-card-footer {
+        .game-over {
             position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 30px;
-            background-color: #3498db;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            font-size: 12px;
-        }
-        
-        .disclaimer {
-            background-color: #f39c12;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 30px;
+            padding: 30px;
+            border-radius: 20px;
             text-align: center;
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
         
+        .winner-text {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .audio-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        .audio-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .audio-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .card, .id-card {
-                width: 300px;
-                height: 189px;
+            .title {
+                font-size: 2rem;
             }
             
-            .card-number {
-                font-size: 18px;
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
+    <div class="audio-controls">
+        <button class="audio-btn" onclick="toggleAudio()">🔊</button>
+    </div>
+    
     <div class="container">
-        <header>
-            <h1>Générateur de Cartes Simulées</h1>
-            <p class="subtitle">Créez des cartes bancaires et d'identité pour vos projets - Simulation uniquement</p>
-        </header>
-        
-        <div class="disclaimer">
-            <strong>⚠️ Attention:</strong> Ce site est uniquement destiné à des fins éducatives et de simulation. 
-            Les cartes générées ne sont pas valides et ne doivent pas être utilisées à des fins frauduleuses.
+        <div class="header">
+            <h1 class="title">🎾 PING PONG ULTRA 🎾</h1>
+            <p class="subtitle">Gen Z Edition - Let's Go! 💪🏾</p>
         </div>
         
-        <div class="generator-section">
-            <div class="tabs">
-                <button class="tab active" onclick="openTab('bank-card')">Carte Bancaire</button>
-                <button class="tab" onclick="openTab('id-card')">Carte d'Identité</button>
+        <div class="score-board">
+            <div class="score">
+                <div>Joueur 1: <span id="score1">0</span></div>
             </div>
-            
-            <div id="bank-card" class="tab-content active">
-                <div class="form-group">
-                    <label for="card-type">Type de carte:</label>
-                    <select id="card-type">
-                        <option value="visa">Visa</option>
-                        <option value="mastercard">Mastercard</option>
-                        <option value="amex">American Express</option>
-                        <option value="discover">Discover</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="card-name">Nom du titulaire:</label>
-                    <input type="text" id="card-name" placeholder="JEAN DUPONT">
-                </div>
-                
-                <div class="form-group">
-                    <label for="card-number">Numéro de carte:</label>
-                    <input type="text" id="card-number" placeholder="4242 4242 4242 4242">
-                </div>
-                
-                <div class="form-group">
-                    <label for="card-expiry">Date d'expiration:</label>
-                    <input type="text" id="card-expiry" placeholder="MM/AA">
-                </div>
-                
-                <div class="form-group">
-                    <label for="card-cvv">CVV:</label>
-                    <input type="text" id="card-cvv" placeholder="123">
-                </div>
-                
-                <button onclick="generateCard()">Générer la Carte</button>
-                
-                <div class="card-preview">
-                    <div class="card" id="credit-card" onclick="flipCard()">
-                        <div class="card-face card-front">
-                            <div class="card-logo" id="front-logo">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa">
-                            </div>
-                            <div class="card-chip"></div>
-                            <div class="card-number" id="preview-number">4242 4242 4242 4242</div>
-                            <div class="card-details">
-                                <div class="card-holder" id="preview-name">JEAN DUPONT</div>
-                                <div class="card-expiry" id="preview-expiry">12/25</div>
-                            </div>
-                        </div>
-                        <div class="card-face card-back">
-                            <div class="card-magnetic-strip"></div>
-                            <div class="card-signature" id="preview-signature">AUTHORIZED SIGNATURE</div>
-                            <div class="card-cvv" id="preview-cvv">CVV: 123</div>
-                            <div class="card-logo" id="back-logo">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="Visa">
-                            </div>
-                        </div>
-                    </div>
-                    <button class="flip-btn" onclick="flipCard()">Retourner</button>
-                    <button class="download-btn" onclick="downloadCard()">Télécharger la Carte</button>
-                </div>
+            <div class="score">
+                <div>Joueur 2: <span id="score2">0</span></div>
             </div>
-            
-            <div id="id-card" class="tab-content">
-                <div class="form-group">
-                    <label for="id-country">Pays:</label>
-                    <select id="id-country">
-                        <option value="france">France</option>
-                        <option value="usa">États-Unis</option>
-                        <option value="uk">Royaume-Uni</option>
-                        <option value="germany">Allemagne</option>
-                        <option value="spain">Espagne</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="id-name">Nom complet:</label>
-                    <input type="text" id="id-name" placeholder="Jean Dupont">
-                </div>
-                
-                <div class="form-group">
-                    <label for="id-dob">Date de naissance:</label>
-                    <input type="text" id="id-dob" placeholder="01/01/1990">
-                </div>
-                
-                <div class="form-group">
-                    <label for="id-number">Numéro d'identification:</label>
-                    <input type="text" id="id-number" placeholder="123456789">
-                </div>
-                
-                <div class="form-group">
-                    <label for="id-address">Adresse:</label>
-                    <input type="text" id="id-address" placeholder="123 Rue de la Paix, Paris">
-                </div>
-                
-                <div class="form-group">
-                    <label for="id-issued">Date d'émission:</label>
-                    <input type="text" id="id-issued" placeholder="01/01/2020">
-                </div>
-                
-                <div class="form-group">
-                    <label for="id-expiry">Date d'expiration:</label>
-                    <input type="text" id="id-expiry" placeholder="01/01/2030">
-                </div>
-                
-                <button onclick="generateID()">Générer la Carte d'Identité</button>
-                
-                <div class="card-preview">
-                    <div class="id-card" id="identity-card">
-                        <div class="id-card-header">REPUBLIQUE FRANÇAISE</div>
-                        <div class="id-card-photo"></div>
-                        <div class="id-card-details">
-                            <div class="id-card-row">
-                                <div class="id-card-label">Nom:</div>
-                                <div class="id-card-value" id="preview-id-name">Jean Dupont</div>
-                            </div>
-                            <div class="id-card-row">
-                                <div class="id-card-label">Date de naissance:</div>
-                                <div class="id-card-value" id="preview-id-dob">01/01/1990</div>
-                            </div>
-                            <div class="id-card-row">
-                                <div class="id-card-label">Numéro:</div>
-                                <div class="id-card-value" id="preview-id-number">123456789</div>
-                            </div>
-                            <div class="id-card-row">
-                                <div class="id-card-label">Adresse:</div>
-                                <div class="id-card-value" id="preview-id-address">123 Rue de la Paix, Paris</div>
-                            </div>
-                            <div class="id-card-row">
-                                <div class="id-card-label">Émis le:</div>
-                                <div class="id-card-value" id="preview-id-issued">01/01/2020</div>
-                            </div>
-                            <div class="id-card-row">
-                                <div class="id-card-label">Expire le:</div>
-                                <div class="id-card-value" id="preview-id-expiry">01/01/2030</div>
-                            </div>
-                        </div>
-                        <div class="id-card-footer">CARTE NATIONALE D'IDENTITÉ</div>
-                    </div>
-                    <button class="download-btn" onclick="downloadID()">Télécharger la Carte d'Identité</button>
-                </div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="400"></canvas>
+            <div class="game-over" id="gameOver">
+                <div class="winner-text" id="winnerText">🏆 Joueur 1 Wins! 🏆</div>
+                <button class="btn" onclick="restartGame()">Nouvelle Partie</button>
             </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="startGame()">▶️ Start</button>
+            <button class="btn pause" onclick="togglePause()">⏸️ Pause</button>
+            <button class="btn reset" onclick="restartGame()">🔄 Reset</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎮 Comment jouer</h3>
+            <p><strong>Joueur 1:</strong> W (Haut) / S (Bas) | <strong>Joueur 2:</strong> ↑ (Haut) / ↓ (Bas)</p>
+            <p>Premier à 5 points gagne! Good luck! 🔥</p>
         </div>
     </div>
-
+    
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
+    </audio>
+    
     <script>
-        // Fonction pour changer d'onglet
-        function openTab(tabId) {
-            // Masquer tous les contenus d'onglet
-            const tabContents = document.getElementsByClassName('tab-content');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement1 = document.getElementById('score1');
+        const scoreElement2 = document.getElementById('score2');
+        const gameOverElement = document.getElementById('gameOver');
+        const winnerTextElement = document.getElementById('winnerText');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        let gameRunning = false;
+        let gamePaused = false;
+        let audioEnabled = true;
+        
+        // Game objects
+        const game = {
+            ball: {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: 15,
+                speedX: 5,
+                speedY: 3,
+                emoji: '🎾'
+            },
+            paddle1: {
+                x: 30,
+                y: canvas.height / 2 - 50,
+                width: 40,
+                height: 100,
+                speed: 8,
+                emoji: '🏓'
+            },
+            paddle2: {
+                x: canvas.width - 70,
+                y: canvas.height / 2 - 50,
+                width: 40,
+                height: 100,
+                speed: 8,
+                emoji: '🏓'
+            },
+            score1: 0,
+            score2: 0,
+            maxScore: 5
+        };
+        
+        // Input handling
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+        
+        // Game functions
+        function drawTable() {
+            // Table background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#2c5f2d');
+            gradient.addColorStop(1, '#4a7c59');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Désactiver tous les onglets
-            const tabs = document.getElementsByClassName('tab');
-            for (let i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
+            // Center line
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
             
-            // Activer l'onglet sélectionné
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            // Table edges
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
         }
         
-        // Fonction pour retourner la carte bancaire
-        function flipCard() {
-            document.getElementById('credit-card').classList.toggle('flipped');
+        function drawBall() {
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(game.ball.emoji, game.ball.x, game.ball.y + 10);
         }
         
-        // Fonction pour générer la carte bancaire
-        function generateCard() {
-            const cardType = document.getElementById('card-type').value;
-            const cardName = document.getElementById('card-name').value.toUpperCase() || 'JEAN DUPONT';
-            const cardNumber = document.getElementById('card-number').value || '4242 4242 4242 4242';
-            const cardExpiry = document.getElementById('card-expiry').value || '12/25';
-            const cardCvv = document.getElementById('card-cvv').value || '123';
-            
-            // Mettre à jour l'affichage
-            document.getElementById('preview-number').textContent = formatCardNumber(cardNumber);
-            document.getElementById('preview-name').textContent = cardName;
-            document.getElementById('preview-expiry').textContent = cardExpiry;
-            document.getElementById('preview-cvv').textContent = 'CVV: ' + cardCvv;
-            document.getElementById('preview-signature').textContent = cardName.slice(0, 20) || 'AUTHORIZED SIGNATURE';
-            
-            // Mettre à jour le logo en fonction du type de carte
-            let logoUrl;
-            switch(cardType) {
-                case 'visa':
-                    logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png';
-                    break;
-                case 'mastercard':
-                    logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png';
-                    break;
-                case 'amex':
-                    logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/American_Express_logo.svg/1024px-American_Express_logo.svg.png';
-                    break;
-                case 'discover':
-                    logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Discover_Card_logo.svg/1024px-Discover_Card_logo.svg.png';
-                    break;
+        function drawPaddle(paddle) {
+            ctx.font = '80px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(paddle.emoji, paddle.x + paddle.width / 2, paddle.y + paddle.height / 2 + 25);
+        }
+        
+        function updatePaddles() {
+            // Player 1 controls (W/S)
+            if (keys['w'] && game.paddle1.y > 0) {
+                game.paddle1.y -= game.paddle1.speed;
+            }
+            if (keys['s'] && game.paddle1.y < canvas.height - game.paddle1.height) {
+                game.paddle1.y += game.paddle1.speed;
             }
             
-            const logos = document.querySelectorAll('#front-logo img, #back-logo img');
-            logos.forEach(logo => {
-                logo.src = logoUrl;
-                logo.alt = cardType.charAt(0).toUpperCase() + cardType.slice(1);
-            });
-            
-            alert('Carte bancaire générée avec succès!');
+            // Player 2 controls (Arrow keys)
+            if (keys['arrowup'] && game.paddle2.y > 0) {
+                game.paddle2.y -= game.paddle2.speed;
+            }
+            if (keys['arrowdown'] && game.paddle2.y < canvas.height - game.paddle2.height) {
+                game.paddle2.y += game.paddle2.speed;
+            }
         }
         
-        // Fonction pour formater le numéro de carte
-        function formatCardNumber(number) {
-            // Supprimer tous les espaces existants
-            let cleaned = number.replace(/\s+/g, '');
-            // Ajouter un espace tous les 4 chiffres
-            let formatted = '';
-            for (let i = 0; i < cleaned.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formatted += ' ';
+        function updateBall() {
+            game.ball.x += game.ball.speedX;
+            game.ball.y += game.ball.speedY;
+            
+            // Top and bottom wall collision
+            if (game.ball.y <= game.ball.radius || game.ball.y >= canvas.height - game.ball.radius) {
+                game.ball.speedY = -game.ball.speedY;
+            }
+            
+            // Paddle collision
+            // Left paddle
+            if (game.ball.x <= game.paddle1.x + game.paddle1.width + game.ball.radius &&
+                game.ball.y >= game.paddle1.y &&
+                game.ball.y <= game.paddle1.y + game.paddle1.height &&
+                game.ball.speedX < 0) {
+                game.ball.speedX = -game.ball.speedX;
+                game.ball.speedX += 0.5; // Increase speed slightly
+            }
+            
+            // Right paddle
+            if (game.ball.x >= game.paddle2.x - game.ball.radius &&
+                game.ball.y >= game.paddle2.y &&
+                game.ball.y <= game.paddle2.y + game.paddle2.height &&
+                game.ball.speedX > 0) {
+                game.ball.speedX = -game.ball.speedX;
+                game.ball.speedX -= 0.5; // Increase speed slightly
+            }
+            
+            // Score points
+            if (game.ball.x < 0) {
+                game.score2++;
+                resetBall();
+                updateScore();
+            } else if (game.ball.x > canvas.width) {
+                game.score1++;
+                resetBall();
+                updateScore();
+            }
+            
+            // Check for game over
+            if (game.score1 >= game.maxScore || game.score2 >= game.maxScore) {
+                gameOver();
+            }
+        }
+        
+        function resetBall() {
+            game.ball.x = canvas.width / 2;
+            game.ball.y = canvas.height / 2;
+            game.ball.speedX = (Math.random() > 0.5 ? 1 : -1) * 5;
+            game.ball.speedY = (Math.random() - 0.5) * 6;
+        }
+        
+        function updateScore() {
+            scoreElement1.textContent = game.score1;
+            scoreElement2.textContent = game.score2;
+        }
+        
+        function gameOver() {
+            gameRunning = false;
+            const winner = game.score1 >= game.maxScore ? 1 : 2;
+            winnerTextElement.textContent = `🏆 Joueur ${winner} Wins! 🏆`;
+            gameOverElement.style.display = 'block';
+        }
+        
+        function gameLoop() {
+            if (!gameRunning || gamePaused) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw everything
+            drawTable();
+            drawBall();
+            drawPaddle(game.paddle1);
+            drawPaddle(game.paddle2);
+            
+            // Update game state
+            updatePaddles();
+            updateBall();
+            
+            // Continue loop
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function startGame() {
+            if (!gameRunning) {
+                gameRunning = true;
+                gamePaused = false;
+                gameOverElement.style.display = 'none';
+                if (audioEnabled) {
+                    bgMusic.play().catch(e => console.log('Audio autoplay blocked'));
                 }
-                formatted += cleaned[i];
+                gameLoop();
             }
-            return formatted;
         }
         
-        // Fonction pour générer la carte d'identité
-        function generateID() {
-            const country = document.getElementById('id-country').value;
-            const idName = document.getElementById('id-name').value || 'Jean Dupont';
-            const idDob = document.getElementById('id-dob').value || '01/01/1990';
-            const idNumber = document.getElementById('id-number').value || '123456789';
-            const idAddress = document.getElementById('id-address').value || '123 Rue de la Paix, Paris';
-            const idIssued = document.getElementById('id-issued').value || '01/01/2020';
-            const idExpiry = document.getElementById('id-expiry').value || '01/01/2030';
-            
-            // Mettre à jour l'affichage
-            document.getElementById('preview-id-name').textContent = idName;
-            document.getElementById('preview-id-dob').textContent = idDob;
-            document.getElementById('preview-id-number').textContent = idNumber;
-            document.getElementById('preview-id-address').textContent = idAddress;
-            document.getElementById('preview-id-issued').textContent = idIssued;
-            document.getElementById('preview-id-expiry').textContent = idExpiry;
-            
-            // Mettre à jour l'en-tête en fonction du pays
-            const header = document.querySelector('.id-card-header');
-            const footer = document.querySelector('.id-card-footer');
-            
-            switch(country) {
-                case 'france':
-                    header.textContent = 'REPUBLIQUE FRANÇAISE';
-                    footer.textContent = 'CARTE NATIONALE D\'IDENTITÉ';
-                    break;
-                case 'usa':
-                    header.textContent = 'UNITED STATES OF AMERICA';
-                    footer.textContent = 'IDENTIFICATION CARD';
-                    break;
-                case 'uk':
-                    header.textContent = 'UNITED KINGDOM';
-                    footer.textContent = 'IDENTITY CARD';
-                    break;
-                case 'germany':
-                    header.textContent = 'BUNDESREPUBLIK DEUTSCHLAND';
-                    footer.textContent = 'PERSONALAUSWEIS';
-                    break;
-                case 'spain':
-                    header.textContent = 'REINO DE ESPAÑA';
-                    footer.textContent = 'DOCUMENTO NACIONAL DE IDENTIDAD';
-                    break;
+        function togglePause() {
+            if (gameRunning) {
+                gamePaused = !gamePaused;
+                if (!gamePaused) {
+                    gameLoop();
+                }
             }
+        }
+        
+        function restartGame() {
+            gameRunning = false;
+            gamePaused = false;
+            game.score1 = 0;
+            game.score2 = 0;
+            game.paddle1.y = canvas.height / 2 - 50;
+            game.paddle2.y = canvas.height / 2 - 50;
+            resetBall();
+            updateScore();
+            gameOverElement.style.display = 'none';
             
-            alert('Carte d\'identité générée avec succès!');
+            // Initial draw
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTable();
+            drawBall();
+            drawPaddle(game.paddle1);
+            drawPaddle(game.paddle2);
         }
         
-        // Fonction pour télécharger la carte bancaire (simulation)
-        function downloadCard() {
-            alert('Fonctionnalité de téléchargement simulée. En production, vous utiliseriez une bibliothèque comme html2canvas pour créer une image.');
-            // En production réel, vous pourriez utiliser:
-             html2canvas(document.getElementById('credit-card')).then(canvas => {
-                 const link = document.createElement('a');
-                 link.download = 'carte-bancaire.png';
-                 link.href = canvas.toDataURL();
-                 link.click();
-             });
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.querySelector('.audio-btn');
+            if (audioEnabled) {
+                btn.textContent = '🔊';
+                if (gameRunning) {
+                    bgMusic.play().catch(e => console.log('Audio play failed'));
+                }
+            } else {
+                btn.textContent = '🔇';
+                bgMusic.pause();
+            }
         }
         
-        // Fonction pour télécharger la carte d'identité (simulation)
-        function downloadID() {
-            alert('Fonctionnalité de téléchargement simulée. En production, vous utiliseriez une bibliothèque comme html2canvas pour créer une image.');
-            // En production réel, vous pourriez utiliser:
-            html2canvas(document.getElementById('identity-card')).then(canvas => {
-                 const link = document.createElement('a');
-                 link.download = 'carte-identite.png';
-                 link.href = canvas.toDataURL();
-                 link.click();
-             });
-        }
+        // Initialize game
+        restartGame();
+        
+        // Auto-start after 2 seconds
+        setTimeout(() => {
+            if (!gameRunning) {
+                startGame();
+            }
+        }, 2000);
     </script>
 </body>
 </html>
