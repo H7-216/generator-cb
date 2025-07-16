@@ -208,6 +208,13 @@
             justify-content: center;
             align-items: center;
         }
+
+        .nav-button.admin-btn {
+            background: var(--accent);
+            color: white;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+        }
         
         /* Search Bar */
         .search-container {
@@ -297,6 +304,12 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .product-description {
+            font-size: 0.9rem;
+            color: #6c757d;
             margin-bottom: 1rem;
         }
         
@@ -786,6 +799,105 @@
             align-items: center;
             margin-bottom: 0.5rem;
         }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-section {
+            background: var(--secondary-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .admin-section h2 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        .add-product-form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 5px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .admin-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            background: #0069d9;
+            transform: translateY(-2px);
+        }
+
+        .admin-btn.secondary {
+            background: #6c757d;
+        }
+
+        .admin-btn.secondary:hover {
+            background: #5a6268;
+        }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
@@ -896,6 +1008,7 @@
                 <button class="nav-button" id="homeBtn">Accueil</button>
                 <button class="nav-button cart-btn" id="cartBtn" data-count="0">Panier</button>
                 <button class="nav-button notif-btn" id="notifBtn" data-count="0" style="display: none;">Notifications</button>
+                <button class="nav-button admin-btn" id="adminBtn" style="display: none;">Admin</button>
                 <button class="nav-button" id="logoutBtn">Déconnexion</button>
             </div>
         </header>
@@ -928,6 +1041,51 @@
                         <span id="cartTotal">0€</span>
                     </div>
                     <button class="checkout-btn" id="checkoutButton">Passer la commande</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="admin-section">
+                <h2>Ajouter un nouveau produit</h2>
+                <form class="add-product-form" id="addProductForm">
+                    <div class="form-group">
+                        <label for="productName">Nom du produit</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPrice">Prix (€)</label>
+                        <input type="number" id="productPrice" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productStock">Quantité en stock</label>
+                        <input type="number" id="productStock" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea id="productDescription"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productImage">Image du produit</label>
+                        <input type="file" id="productImage" accept="image/*">
+                        <div class="image-preview" id="imagePreview">
+                            <span>Aperçu de l'image</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="admin-btn">Ajouter le produit</button>
+                </form>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Produits existants</h2>
+                <div class="products-container" id="adminProductsContainer">
+                    <!-- Produits chargés dynamiquement avec options de suppression -->
                 </div>
             </div>
         </div>
@@ -1011,12 +1169,13 @@
 
     <script>
         // Données des produits
-        const products = [
+        let products = [
             {
                 id: 1,
                 name: "T-shirt Classique",
                 price: 24.99,
                 stock: 10,
+                description: "T-shirt en coton 100% bio, confortable et respirant.",
                 image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
             },
             {
@@ -1024,6 +1183,7 @@
                 name: "Jean Slim",
                 price: 59.99,
                 stock: 5,
+                description: "Jean slim moderne avec stretch pour un confort optimal.",
                 image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
             },
             {
@@ -1031,28 +1191,8 @@
                 name: "Chaussures Sport",
                 price: 89.99,
                 stock: 8,
+                description: "Chaussures de sport légères et confortables pour toutes vos activités.",
                 image: "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-            },
-            {
-                id: 4,
-                name: "Veste en Cuir",
-                price: 199.99,
-                stock: 3,
-                image: "https://images.unsplash.com/photo-1551232864-3f0890e580d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-            },
-            {
-                id: 5,
-                name: "Montre Élégante",
-                price: 149.99,
-                stock: 7,
-                image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-            },
-            {
-                id: 6,
-                name: "Sac à Main",
-                price: 79.99,
-                stock: 2,
-                image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
             }
         ];
         
@@ -1090,10 +1230,30 @@
             }
         }
         
+        // Charger les produits depuis le localStorage
+        function loadProducts() {
+            const savedProducts = localStorage.getItem('products');
+            if (savedProducts && savedProducts !== 'undefined') {
+                try {
+                    const parsedProducts = JSON.parse(savedProducts);
+                    if (Array.isArray(parsedProducts)) {
+                        products = parsedProducts;
+                    }
+                } catch (e) {
+                    console.error("Erreur de parsing des produits:", e);
+                }
+            }
+        }
+        
         // Sauvegarder les utilisateurs (sauf l'admin)
         function saveUsers() {
             const usersToSave = users.filter(user => !user.isAdmin);
             localStorage.setItem('users', JSON.stringify(usersToSave));
+        }
+        
+        // Sauvegarder les produits
+        function saveProducts() {
+            localStorage.setItem('products', JSON.stringify(products));
         }
         
         // DOM Elements
@@ -1104,21 +1264,29 @@
         const authTabs = document.querySelectorAll('.auth-tab');
         const homePage = document.getElementById('homePage');
         const cartPage = document.getElementById('cartPage');
+        const adminPanel = document.getElementById('adminPanel');
         const productsContainer = document.getElementById('productsContainer');
+        const adminProductsContainer = document.getElementById('adminProductsContainer');
         const cartItems = document.getElementById('cartItems');
         const cartTotal = document.getElementById('cartTotal');
         const cartBtn = document.getElementById('cartBtn');
         const notifBtn = document.getElementById('notifBtn');
+        const adminBtn = document.getElementById('adminBtn');
         const homeBtn = document.getElementById('homeBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const checkoutButton = document.getElementById('checkoutButton');
         const checkoutModal = document.getElementById('checkoutModal');
+        const addProductForm = document.getElementById('addProductForm');
+        const productImage = document.getElementById('productImage');
+        const imagePreview = document.getElementById('imagePreview');
         
         // Initialisation
         function init() {
             loadUsers();
+            loadProducts();
             setupEventListeners();
             renderProducts();
+            renderAdminProducts();
             setInterval(checkForNewOrders, 3000);
         }
         
@@ -1161,9 +1329,11 @@
                     if (isAdmin) {
                         document.getElementById('admin-notif').style.display = 'block';
                         notifBtn.style.display = 'block';
+                        adminBtn.style.display = 'block';
                         updateNotificationCount();
                     } else {
                         notifBtn.style.display = 'none';
+                        adminBtn.style.display = 'none';
                     }
                     
                     showApp();
@@ -1210,6 +1380,7 @@
                 };
                 isAdmin = false;
                 notifBtn.style.display = 'none';
+                adminBtn.style.display = 'none';
                 
                 showApp();
             });
@@ -1218,6 +1389,7 @@
             homeBtn.addEventListener('click', showHomePage);
             cartBtn.addEventListener('click', showCartPage);
             notifBtn.addEventListener('click', showFullOrderHistory);
+            adminBtn.addEventListener('click', showAdminPanel);
             logoutBtn.addEventListener('click', logout);
             
             // Checkout
@@ -1236,6 +1408,89 @@
                     }
                 });
             });
+            
+            // Ajout de produit
+            addProductForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addNewProduct();
+            });
+            
+            // Prévisualisation de l'image
+            productImage.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imagePreview.innerHTML = `<img src="${event.target.result}" alt="Aperçu de l'image">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Ajouter un nouveau produit
+        function addNewProduct() {
+            const name = document.getElementById('productName').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const stock = parseInt(document.getElementById('productStock').value);
+            const description = document.getElementById('productDescription').value;
+            const imageFile = productImage.files[0];
+            
+            if (!name || isNaN(price) || isNaN(stock)) {
+                alert("Veuillez remplir tous les champs obligatoires");
+                return;
+            }
+            
+            // Générer un nouvel ID
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            
+            const newProduct = {
+                id: newId,
+                name: name,
+                price: price,
+                stock: stock,
+                description: description
+            };
+            
+            // Gérer l'image
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    newProduct.image = event.target.result;
+                    products.push(newProduct);
+                    saveProducts();
+                    renderProducts();
+                    renderAdminProducts();
+                    resetProductForm();
+                    alert("Produit ajouté avec succès !");
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                // Utiliser une image par défaut si aucune n'est fournie
+                newProduct.image = "https://via.placeholder.com/300x200?text=No+Image";
+                products.push(newProduct);
+                saveProducts();
+                renderProducts();
+                renderAdminProducts();
+                resetProductForm();
+                alert("Produit ajouté avec succès !");
+            }
+        }
+        
+        // Réinitialiser le formulaire d'ajout de produit
+        function resetProductForm() {
+            document.getElementById('addProductForm').reset();
+            imagePreview.innerHTML = '<span>Aperçu de l'image</span>';
+        }
+        
+        // Supprimer un produit
+        function deleteProduct(productId) {
+            if (!confirm("Voulez-vous vraiment supprimer ce produit ?")) return;
+            
+            products = products.filter(product => product.id !== productId);
+            saveProducts();
+            renderProducts();
+            renderAdminProducts();
         }
         
         // Mettre à jour le compteur de notifications
@@ -1317,7 +1572,7 @@
                 setTimeout(() => {
                     notif.style.display = 'none';
                 }, 500);
-            }, 10000); // Augmentation du temps d'affichage à 10 secondes
+            }, 10000);
         }
         
         // Afficher l'historique complet des commandes
@@ -1423,13 +1678,23 @@
         function showHomePage() {
             homePage.style.display = 'block';
             cartPage.style.display = 'none';
+            adminPanel.style.display = 'none';
         }
         
         // Afficher la page panier
         function showCartPage() {
             homePage.style.display = 'none';
             cartPage.style.display = 'block';
+            adminPanel.style.display = 'none';
             renderCart();
+        }
+        
+        // Afficher le panel admin
+        function showAdminPanel() {
+            homePage.style.display = 'none';
+            cartPage.style.display = 'none';
+            adminPanel.style.display = 'block';
+            renderAdminProducts();
         }
         
         // Afficher le modal de paiement
@@ -1559,6 +1824,7 @@
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
                         <div class="product-price">${product.price.toFixed(2)}€</div>
+                        ${product.description ? `<div class="product-description">${product.description}</div>` : ''}
                         <div class="product-stock">${product.stock > 0 ? `En stock (${product.stock})` : 'Rupture de stock'}</div>
                         <button class="add-to-cart" data-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>
                             ${product.stock > 0 ? 'Ajouter au panier' : 'Indisponible'}
@@ -1574,6 +1840,34 @@
                     const productId = parseInt(button.dataset.id);
                     addToCart(productId);
                 });
+            });
+        }
+        
+        // Rendre les produits dans l'interface admin
+        function renderAdminProducts() {
+            if (!isAdmin) return;
+            
+            adminProductsContainer.innerHTML = '';
+            
+            products.forEach((product, index) => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-card slide-in';
+                productElement.style.animationDelay = `${index * 0.1}s`;
+                
+                productElement.innerHTML = `
+                    <div class="product-image" style="background-image: url('${product.image}')"></div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <div class="product-price">${product.price.toFixed(2)}€</div>
+                        ${product.description ? `<div class="product-description">${product.description}</div>` : ''}
+                        <div class="product-stock">Stock: ${product.stock}</div>
+                        <button class="admin-btn secondary" onclick="deleteProduct(${product.id})" style="width: 100%; margin-top: 10px;">
+                            Supprimer
+                        </button>
+                    </div>
+                `;
+                
+                adminProductsContainer.appendChild(productElement);
             });
         }
         
@@ -1598,9 +1892,11 @@
             }
             
             product.stock -= 1;
+            saveProducts();
             
             updateCartUI();
             renderProducts();
+            if (isAdmin) renderAdminProducts();
         }
         
         // Mettre à jour l'UI du panier
@@ -1686,9 +1982,11 @@
                 }
             }
             
+            saveProducts();
             updateCartUI();
             renderCart();
             renderProducts();
+            if (isAdmin) renderAdminProducts();
         }
         
         // Supprimer un article du panier
@@ -1701,9 +1999,11 @@
             product.stock += cart[itemIndex].quantity;
             cart.splice(itemIndex, 1);
             
+            saveProducts();
             updateCartUI();
             renderCart();
             renderProducts();
+            if (isAdmin) renderAdminProducts();
         }
         
         // Démarrer l'application
